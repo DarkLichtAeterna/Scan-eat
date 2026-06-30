@@ -239,6 +239,38 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ========== ACCESSIBILITY CLASSES ========================================
+   Applied on <body> via Réglages → Lecture (public/features/appearance.js).
+   Restored after being dropped in the styles.css → styles.refactored.css
+   migration — the JS toggled these classes correctly all along, but no CSS
+   ever responded to them, so the setting silently did nothing.
+
+   Implemented as token overrides (not direct font-family declarations) so
+   they also override --font-display: headings, grades, and score numbers
+   hardcode font-family:var(--font-display) (see styles.rework.css §3) —
+   a body.font-lexend{font-family:...} rule wouldn't reach those, since
+   that explicit declaration always wins over inherited body font-family.
+   Custom properties don't have that problem: setting --font-display here
+   cascades to every descendant that reads it. */
+body.font-lexend {
+  --font-sans: "Lexend", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Lexend", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+body.font-system {
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+/* font-size-large / xlarge scale every rem-based value in the app since
+   the whole type scale (--text-*) is defined in rem off the root size.
+   :has() (Chrome/Firefox/Safari 2023+) lets a body class rescale the
+   html root; the body rule below is a same-value fallback for the rare
+   browser without :has() support — it won't rescale rem values but at
+   least scales body's own directly-inherited text. */
+html:has(body.font-size-large)  { font-size: 20px; }
+html:has(body.font-size-xlarge) { font-size: 22px; }
+body.font-size-large  { font-size: 20px; }
+body.font-size-xlarge { font-size: 22px; }
+
 /* Paper-grain overlay — protected signature element. 2% SVG noise,
    mix-blend-mode: overlay. Honored by reduce-transparency below. */
 body::before {
@@ -1066,6 +1098,10 @@ header h1 {
   background: var(--panel-2);
   border-radius: var(--r-sm);
   font-size: var(--text-sm);
+}
+#status[hidden],
+.status[hidden] {
+  display: none;
 }
 .status-text-wrap {
   flex: 1;
@@ -2983,8 +3019,11 @@ body.reduce-motion [aria-busy="true"]::before {
   list-style: none;
 }
 .manual-barcode-wrap summary::-webkit-details-marker { display: none; }
-.manual-barcode-wrap summary:hover,
-.manual-barcode-wrap summary:focus-visible { color: var(--text); outline: none; }
+.manual-barcode-wrap summary:hover { color: var(--text); }
+.manual-barcode-wrap summary:focus-visible {
+  color: var(--text);
+  border-radius: var(--r-sm);
+}
 
 /* --- .meta-chips --- */
 .meta-chips {

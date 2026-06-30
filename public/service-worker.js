@@ -9,19 +9,24 @@
 // dashboard tile grid HTML restructure, etc.). Any already-installed
 // PWA was serving the pre-session CSS/JS out of r35; r36 forces a
 // fresh fetch on next load so the visible delta actually lands.
-const CACHE = 'scann-eat-shell-d900eae';
+const CACHE = 'scann-eat-shell-r37-precache-fix';
 const SHELL = [
   '/',
   '/index.html',
   '/app.js',
   '/backup.js',
   '/profiles.js',
+  '/native-bridge.js',
   '/engine.bundle.js',
-  '/styles.css',
+  '/styles.refactored.css',
+  '/styles.rework.css',
   '/manifest.webmanifest',
   '/icon.svg',
+  // /state/
+  '/state/scan-queue-state.js',
   // /core/
   '/core/i18n.js',
+  '/core/dom-helpers.js',
   '/core/explanations.js',
   '/core/allergens.js',
   '/core/diets.js',
@@ -67,6 +72,19 @@ const SHELL = [
   '/features/recipe-ideas.js',
   '/features/settings-dialog.js',
   '/features/keybindings.js',
+  '/features/add-to-recipe.js',
+  '/features/barcode-scanner-detect.js',
+  '/features/custom-foods-day-notes.js',
+  '/features/dashboard-charts.js',
+  '/features/image-compression.js',
+  '/features/meal-plan-ui.js',
+  '/features/offline-queue-sync.js',
+  '/features/profiles-ui.js',
+  '/features/qa-photo-identify.js',
+  '/features/scan-pipeline.js',
+  '/features/scan-queue-ui.js',
+  '/features/scan-result-render.js',
+  '/features/telemetry-ui.js',
   '/features/profile-dialog.js',
   '/features/menu-scan.js',
   '/features/templates-dialog.js',

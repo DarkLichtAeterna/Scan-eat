@@ -53,6 +53,13 @@
   --accent-ink:       #110E07;   /* near-black on amber */
   --accent-warm:      #E8C46B;   /* still warm for chip accents */
 
+  /* Warning recalibrated off hue 38° → 28°: at the old value (#F5B441) it
+     sat almost on top of --accent (hue ~41°), so a caution state and the
+     primary CTA read as the same color family. True orange now reads as
+     "caution", distinct from amber "action" and from the grade-ramp red
+     "danger" (hue ~352°). */
+  --warning:          #F39849;   /* oklch(76% .15 28) */
+
   /* Gradient follows the new amber */
   --grad-accent:      linear-gradient(135deg, #D4A032 0%, #B8832A 100%);
   --grad-accent-dim:  linear-gradient(135deg, #B08826 0%, #9A6E22 100%);
@@ -128,6 +135,15 @@
   --accent-focus:     #96700F;
   --accent-ink:       #FFFFFF;
   --accent-warm:      #9B7214;
+
+  /* --success and --warning were never recalibrated for light theme —
+     they inherited the dark-theme values (#6BE584, #F5B441) tuned for a
+     near-black panel. As text (e.g. .gap-closer-list[data-all-met] uses
+     color:var(--success)) that's #6BE584 on white: 1.6:1 contrast,
+     effectively invisible (needs 4.5:1). Same hue family, darkened for
+     AA on white panels. */
+  --success:          #15793E;   /* 5.47:1 on white */
+  --warning:          #914808;   /* 6.70:1 on white, same hue as dark warning */
 
   --grad-accent:      linear-gradient(135deg, #96700F 0%, #7A5A08 100%);
   --grad-accent-soft: linear-gradient(135deg, rgba(150,112,15,0.14) 0%, rgba(122,90,8,0.14) 100%);
@@ -499,4 +515,26 @@ button[data-i18n="next"]:hover:not(:disabled) {
 [data-theme="light"] .grade-chip[data-grade="F"],
 [data-theme="light"] .recent-grade[data-grade="F"] {
   outline: 1px solid rgba(0, 0, 0, 0.18);
+}
+
+/* =====================================================================
+   14. TOKEN-MIGRATION GAP — leftover hardcoded orange (#FF6B45) accents
+   ===================================================================== */
+/* styles.refactored.css hardcodes the pre-rework orange as raw rgba() in
+   three animations (scanning sweep glow ×2, voice-record pulse) instead of
+   referencing --accent. The :root override above repoints --accent to
+   amber, but these never read that variable, so they kept rendering the
+   old orange — a literal "find-and-replace" gap: changing the brand accent
+   required touching 4 files instead of 1. Recalibrated to amber
+   (#D4A032 → rgb(212,160,50)) at the same opacities as the originals. */
+.capture[aria-busy="true"]::after,
+[aria-busy="true"]::before {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(212, 160, 50, 0.10) 50%,
+    transparent 100%);
+}
+@keyframes voice-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 160, 50, 0.45); }
+  50%      { box-shadow: 0 0 0 10px rgba(212, 160, 50, 0); }
 }

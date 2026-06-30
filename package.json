@@ -7,6 +7,8 @@
     "node": ">=22.6"
   },
   "scripts": {
+    "check:app-size": "node tools/check-app-size.mjs",
+    "pretest": "npm run check:app-size",
     "test": "node --test --experimental-strip-types tests/*.tests.ts",
     "dev": "node --experimental-strip-types src/server.ts",
     "build:web": "node build.mjs",

@@ -97,3 +97,94 @@ export function formatGroceryList(items, opts = {}) {
     .map((it) => `${prefix}${it.name}${it.grams > 0 ? ` · ${it.grams} g` : ''}`)
     .join('\n');
 }
+
+/**
+ * Grocery-list dialog UI: wires the "📝 Liste de courses" button,
+ * builds the aggregated list + share text, and handles markdown
+ * toggle / copy / share / close. Extracted from app.js (Phase 14 —
+ * same deps-object convention as the rest of public/features/*).
+ *
+ * Grocery list dialog: aggregates ingredients across the recipes
+ * ticked in the recipes-list. If nothing is ticked, takes ALL
+ * recipes (the "list all my recipes" weekly-shopping use case).
+ */
+export function initGroceryListDialog({ $, t, toast, show, shareOrCopy, listRecipes }) {
+  const groceryDialog = $('grocery-dialog');
+
+  async function openGroceryList() {
+    const all = await listRecipes().catch(() => []);
+    const checked = Array.from(document.querySelectorAll('#recipes-list .tpl-pick:checked'));
+    const ids = new Set(checked.map((el) => el.dataset.recipeId));
+    const picked = ids.size > 0 ? all.filter((r) => ids.has(r.id)) : all;
+    if (picked.length === 0) { toast(t('groceryEmpty'), 'warn'); return; }
+    const items = aggregateGroceryList(picked);
+    const list = $('grocery-list');
+    const text = $('grocery-text');
+    const source = $('grocery-source');
+    if (source) source.textContent = t('grocerySource', { n: picked.length });
+    if (list) {
+      list.textContent = '';
+      for (const it of items) {
+        const li = document.createElement('li');
+        li.className = 'tpl-item';
+        const name = document.createElement('strong');
+        name.textContent = it.name;
+        const grams = document.createElement('span');
+        grams.className = 'tpl-kcal';
+        grams.textContent = it.grams > 0 ? `${it.grams} g` : '';
+        li.appendChild(name);
+        li.appendChild(grams);
+        // F-F-04: show per-ingredient recipe breakdown when the
+        // ingredient is used in ≥ 2 recipes (the "why 400g of oignon?"
+        // question). Single-source rows stay clean.
+        if (Array.isArray(it.sources) && it.sources.length > 1) {
+          const from = document.createElement('span');
+          from.className = 'grocery-from';
+          from.textContent = t('groceryFrom', { sources: it.sources.join(' + ') });
+          li.appendChild(from);
+        }
+        list.appendChild(li);
+      }
+    }
+    // R34.N4: honour the markdown checkbox for checkbox-style output.
+    const useMd = !!$('grocery-markdown')?.checked;
+    if (text) text.value = formatGroceryList(items, { markdown: useMd });
+    // Share btn falls back to clipboard via shareOrCopy, so it's useful
+    // on every platform — just reveal it when the dialog opens.
+    const shareBtn = $('grocery-share');
+    if (shareBtn) show(shareBtn);
+    groceryDialog?.showModal();
+  }
+
+  $('recipe-grocery-btn')?.addEventListener('click', openGroceryList);
+  // R34.N4: re-render the textarea when the user toggles the markdown
+  // checkbox. We already have a reference to `items` only within
+  // openGroceryList; cheapest path is to re-run the aggregation.
+  $('grocery-markdown')?.addEventListener('change', () => openGroceryList());
+  $('grocery-close')?.addEventListener('click', (e) => { e.preventDefault(); groceryDialog?.close(); });
+  $('grocery-copy')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const text = $('grocery-text')?.value || '';
+    try {
+      await navigator.clipboard?.writeText(text);
+      // R16.5: success → 'ok' for stripe consistency.
+      toast(t('groceryCopied'), 'ok');
+    } catch {
+      // Fallback: select the textarea so the user can copy manually.
+      $('grocery-text')?.select();
+    }
+  });
+  $('grocery-share')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const text = $('grocery-text')?.value || '';
+    if (!text) return;
+    await shareOrCopy({
+      title: t('groceryTitle'),
+      text,
+      toasts: { copied: t('groceryCopied'), failed: t('groceryShareFailed') },
+      toast,
+    });
+  });
+
+  return { openGroceryList };
+}
