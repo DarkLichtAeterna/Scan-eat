@@ -56,6 +56,18 @@ export function initSettingsDialog(deps) {
   settingsBtn?.addEventListener('click', () => {
     keyInput.value = getKey();
     modeSelect.value = localStorage.getItem(LS_MODE) || (isCapacitor ? 'direct' : 'auto');
+    // The APK has no '/api/*' origin to call — 'auto' and 'server' modes
+    // can never succeed there and just produce a confusing network error.
+    // Hide them so 'direct' (Groq + OFF, no backend) is the only option.
+    if (isCapacitor) {
+      for (const opt of modeSelect.options) {
+        if (opt.value !== 'direct') opt.hidden = true;
+      }
+      if (modeSelect.value !== 'direct') {
+        modeSelect.value = 'direct';
+        localStorage.setItem(LS_MODE, 'direct');
+      }
+    }
     langSelect.value = currentLang();
     themeSelect.value = localStorage.getItem(LS_THEME) || 'oled';
     const fontSizeSel = $('settings-font-size');
@@ -163,7 +175,7 @@ export function initSettingsDialog(deps) {
     calibrationPlaceholder && (calibrationPlaceholder.textContent = 'Calcul en cours…');
     try {
       const [{ calibrateWeights, CURRENT_WEIGHTS }, history] = await Promise.all([
-        import('/core/weight-calibration.js'),
+        import('../core/weight-calibration.js'),
         listScans ? listScans() : Promise.resolve([]),
       ]);
       const result = calibrateWeights(history);

@@ -13,14 +13,14 @@
  *   pending_scans — transient offline queue; not worth saving across devices
  */
 
-import { listScans, saveScan, clearScans } from '/data/scan-history.js';
+import { listScans, saveScan, clearScans } from './data/scan-history.js';
 import {
   listAllEntries, putEntry, listByDate, deleteEntry, todayISO,
-} from '/data/consumption.js';
-import { listWeight, logWeight, deleteWeight } from '/data/weight-log.js';
-import { listTemplates, saveTemplate, deleteTemplate } from '/data/meal-templates.js';
-import { listRecipes, saveRecipe, deleteRecipe } from '/data/recipes.js';
-import { listAllActivity, logActivity, deleteActivity } from '/data/activity.js';
+} from './data/consumption.js';
+import { listWeight, logWeight, deleteWeight } from './data/weight-log.js';
+import { listTemplates, saveTemplate, deleteTemplate } from './data/meal-templates.js';
+import { listRecipes, saveRecipe, deleteRecipe } from './data/recipes.js';
+import { listAllActivity, logActivity, deleteActivity } from './data/activity.js';
 
 // v2 adds the `activity` array. v1 readers just ignore it; we still read
 // old v1 backups by defaulting to [].

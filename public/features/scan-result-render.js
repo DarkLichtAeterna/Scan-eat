@@ -47,15 +47,15 @@
  * are looked up by id directly, matching the existing convention in
  * this cluster — no id renaming in this restructuring (H6).
  */
-import { show, hide } from '/core/dom-helpers.js';
-import { t as i18nT, currentLang } from '/core/i18n.js';
-import { detectAllergens } from '/core/allergens.js';
-import { explainFlag } from '/core/explanations.js';
-import { matchPairings } from '/data/pairings.js';
-import { shareOrCopy } from '/core/share.js';
-import { computePersonalScore, personalGrade } from '/core/personal-score.js';
-import { getProfile } from '/data/profile.js';
-import { computeConfidence } from '/core/presenters.js';
+import { show, hide } from '../core/dom-helpers.js';
+import { t as i18nT, currentLang } from '../core/i18n.js';
+import { detectAllergens } from '../core/allergens.js';
+import { explainFlag } from '../core/explanations.js';
+import { matchPairings } from '../data/pairings.js';
+import { shareOrCopy } from '../core/share.js';
+import { computePersonalScore, personalGrade } from '../core/personal-score.js';
+import { getProfile } from '../data/profile.js';
+import { computeConfidence } from '../core/presenters.js';
 
 const $ = (id) => document.getElementById(id);
 

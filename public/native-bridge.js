@@ -83,6 +83,19 @@ export async function nativeScanBarcode() {
   const BS = getPlugin('BarcodeScanner');
   if (!BS) return null;
   try {
+    // The Google Barcode Scanner module is a separate on-device download
+    // (Play Services). On a fresh install, or on a device that hasn't
+    // pulled it down yet, BS.scan() can throw/hang instead of prompting.
+    // Check first and trigger the install if missing.
+    try {
+      const avail = await BS.isGoogleBarcodeScannerModuleAvailable();
+      if (!avail?.available) {
+        await BS.installGoogleBarcodeScannerModule();
+      }
+    } catch {
+      // isGoogleBarcodeScannerModuleAvailable/install are Android-only;
+      // ignore failures here (e.g. iOS) and fall through to scan().
+    }
     const status = await BS.requestPermissions();
     if (status?.camera !== 'granted' && status?.camera !== 'limited') return null;
     const result = await BS.scan({ formats: BARCODE_FORMATS });

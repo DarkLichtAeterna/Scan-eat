@@ -43,27 +43,27 @@
  * stay in app.js untouched — they're boot sequencing, not part of any
  * moved function.
  */
-import { show, hide, toast, toastWithUndo } from '/core/dom-helpers.js';
-import { t, currentLang } from '/core/i18n.js';
-import { dateFormatter, localeFor } from '/core/date-format.js';
-import { localDateISO } from '/core/dateutil.js';
-import { getProfile, dailyTargets } from '/data/profile.js';
+import { show, hide, toast, toastWithUndo } from '../core/dom-helpers.js';
+import { t, currentLang } from '../core/i18n.js';
+import { dateFormatter, localeFor } from '../core/date-format.js';
+import { localDateISO } from '../core/dateutil.js';
+import { getProfile, dailyTargets } from '../data/profile.js';
 import {
   listByDate, listAllEntries, dailyTotals, deleteEntry, putEntry,
   groupByMeal, MEALS, todayISO,
-} from '/data/consumption.js';
-import { listWeight } from '/data/weight-log.js';
-import { listCustomFoods } from '/data/custom-food-db.js';
-import { FOOD_DB } from '/data/food-db.js';
+} from '../data/consumption.js';
+import { listWeight } from '../data/weight-log.js';
+import { listCustomFoods } from '../data/custom-food-db.js';
+import { FOOD_DB } from '../data/food-db.js';
 import {
   weeklyRollup, monthlyRollup, weekOverWeekDelta, logStreakDays,
   dashboardRowsFrom, pctClass, closeTheGap, buildLineChartPath,
-} from '/core/presenters.js';
-import { renderHydration } from '/features/hydration.js';
-import { renderActivity } from '/features/activity.js';
-import { renderWeightSummary } from '/features/weight.js';
-import { renderFasting } from '/features/fasting.js';
-import { renderDayNote } from '/features/custom-foods-day-notes.js';
+} from '../core/presenters.js';
+import { renderHydration } from './hydration.js';
+import { renderActivity } from './activity.js';
+import { renderWeightSummary } from './weight.js';
+import { renderFasting } from './fasting.js';
+import { renderDayNote } from './custom-foods-day-notes.js';
 
 const $ = (id) => document.getElementById(id);
 

@@ -10,9 +10,10 @@
  * directly, matching the existing convention in this cluster — no id
  * renaming in this restructuring (H6).
  */
-import { t } from '/core/i18n.js';
-import { show, hide } from '/core/dom-helpers.js';
-import { listPending, remove as removePending, countPending } from '/data/queue-store.js';
+import { t } from '../core/i18n.js';
+import { show, hide } from '../core/dom-helpers.js';
+import { listPending, remove as removePending, countPending } from '../data/queue-store.js';
+import { apiUrl } from '../core/api-base.js';
 
 const $ = (id) => document.getElementById(id);
 const pendingBanner = $('pending-banner');
@@ -31,7 +32,7 @@ async function retryPending() {
     const items = await listPending();
     for (const item of items) {
       try {
-        const res = await fetch('/api/score', {
+        const res = await fetch(apiUrl('/api/score'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ images: item.images, barcode: item.barcode }),

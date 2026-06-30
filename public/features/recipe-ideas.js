@@ -1,3 +1,4 @@
+import { apiUrl } from '../core/api-base.js';
 /**
  * Recipe ideas dialog — LLM-backed recipe suggestion cards.
  *
@@ -202,7 +203,7 @@ export async function openRecipeIdeas(ingredient) {
     () => fetchRecipes({
       cacheKey: _recipeKey('ingredient', ingredient),
       direct: (engine, key) => engine.suggestRecipes(ingredient, { apiKey: key }),
-      server: { url: '/api/suggest-recipes', body: { ingredient } },
+      server: { url: apiUrl('/api/suggest-recipes'), body: { ingredient } },
     }),
   );
 }
@@ -216,7 +217,7 @@ export async function openPantryIdeas(pantry) {
     () => fetchRecipes({
       cacheKey: _recipeKey('pantry', pantry),
       direct: (engine, key) => engine.suggestRecipesFromPantry(pantry, { apiKey: key }),
-      server: { url: '/api/suggest-from-pantry', body: { pantry } },
+      server: { url: apiUrl('/api/suggest-from-pantry'), body: { pantry } },
     }),
   );
 }

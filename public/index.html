@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#000000" />
     <title>Scan'eat</title>
-    <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <!-- Pre-paint theme guard: OLED noir is the default, but if the user
          has explicitly chosen Sombre/Clair/Système in Settings we want
          that applied before first paint too, not just after appearance.js
@@ -32,9 +32,9 @@
          Source: public/styles.refactored.css (single source of truth, ~76 KB after backport).
          The legacy public/styles.css (247 KB, 7900 lines) has been retired.
          styles.refactored.css is now the live stylesheet. -->
-    <link rel="stylesheet" href="/styles.refactored.css" />
+    <link rel="stylesheet" href="./styles.refactored.css" />
     <!-- Design rework layer — tokens + component overrides. See styles.rework.css -->
-    <link rel="stylesheet" href="/styles.rework.css" />
+    <link rel="stylesheet" href="./styles.rework.css" />
   </head>
   <body>
     <noscript>
@@ -1238,6 +1238,6 @@
       </button>
     </nav>
 
-    <script type="module" src="/app.js"></script>
+    <script type="module" src="./app.js"></script>
   </body>
 </html>

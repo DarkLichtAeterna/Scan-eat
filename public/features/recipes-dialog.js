@@ -1,3 +1,4 @@
+import { apiUrl } from '../core/api-base.js';
 /**
  * Recipes dialog — multi-component dishes that log as ONE aggregated
  * consumption entry. Also houses the recipe editor and the "from last
@@ -653,7 +654,7 @@ export function initRecipesDialog(deps) {
     if (!url) { setImportStatus(t('recipeImportNoUrl'), 'warn'); return; }
     setImportStatus(t('recipeImportLoading'));
     try {
-      const res = await fetch(`/api/fetch-recipe?url=${encodeURIComponent(url)}`);
+      const res = await fetch(apiUrl(`/api/fetch-recipe?url=${encodeURIComponent(url)}`));
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error || `HTTP ${res.status}`);
@@ -695,7 +696,7 @@ export function initRecipesDialog(deps) {
           throw err2;
         }
       } else {
-        const res = await fetch('/api/identify-recipe', {
+        const res = await fetch(apiUrl('/api/identify-recipe'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ images }),

@@ -26,8 +26,8 @@
  * existing convention in this cluster — no id renaming in this
  * restructuring (H6).
  */
-import { show, hide } from '/core/dom-helpers.js';
-import { listProfiles, activeProfile } from '/profiles.js';
+import { show, hide } from '../core/dom-helpers.js';
+import { listProfiles, activeProfile } from '../profiles.js';
 
 const $ = (id) => document.getElementById(id);
 

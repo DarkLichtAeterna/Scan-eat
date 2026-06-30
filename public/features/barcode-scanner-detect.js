@@ -4,7 +4,7 @@
  * object (deps.getBarcodeDetector). ADR-0004 feature-folder pattern,
  * extracted per the app.js decomposition plan (Phase 3).
  */
-import { nativeDetectBarcodeFromBase64 } from '/native-bridge.js';
+import { nativeDetectBarcodeFromBase64 } from '../native-bridge.js';
 
 const isCapacitor = !!globalThis.Capacitor?.isNativePlatform?.();
 

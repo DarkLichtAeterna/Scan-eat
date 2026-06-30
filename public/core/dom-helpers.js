@@ -6,7 +6,7 @@
  * a single external dependency (`t` for i18n), imported directly like the
  * rest of core/*.
  */
-import { t } from '/core/i18n.js';
+import { t } from './i18n.js';
 
 function show(el) { if (el) el.hidden = false; }
 function hide(el) { if (el) el.hidden = true; }

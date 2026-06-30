@@ -1,75 +1,75 @@
-import { t, setLang, currentLang, applyStaticTranslations } from '/core/i18n.js';
-import { show, hide, toast, toastWithUndo } from '/core/dom-helpers.js';
-import { enqueue, listPending } from '/data/queue-store.js';
-import { saveScan, listScans, deleteScan, clearScans } from '/data/scan-history.js';
-import { buildBackup, restoreBackup } from '/backup.js';
-import { saveProfile, switchProfile, deleteProfile } from '/profiles.js';
-import { isEnabled as telemetryEnabled, setEnabled as telemetrySetEnabled, logEvent as telemetryLog, clearEvents as telemetryClear, formatEvents as telemetryFormat } from '/core/telemetry.js';
-import { initTelemetryUi } from '/features/telemetry-ui.js';
-import { setSetting } from '/core/app-settings.js';
-import { initHydration } from '/features/hydration.js';
-import { initActivity } from '/features/activity.js';
-import { initWeight, renderWeightSummary } from '/features/weight.js';
-import { initReminders, scheduleReminders } from '/features/reminders.js';
-import { initVoiceDictate } from '/features/voice-dictate.js';
-import { initScanner, openCameraScanner, closeCameraScanner } from '/features/scanner.js';
-import { maybeShowOnboarding } from '/features/onboarding.js';
-import { initInstallBanner } from '/features/install-banner.js';
-import { initUpdateChecker } from '/features/update-checker.js';
-import { initComparison, maybeRenderComparison, compareArmed } from '/features/comparison.js';
-import { initPortionPanel } from '/features/portion-panel.js';
-import { initScanHistoryUi } from '/features/scan-history-ui.js';
-import { initBackupIO } from '/features/backup-io.js';
-import { initFasting, isFastingActive } from '/features/fasting.js';
-import { initAppearance, applyAppearance, applyTheme, applyReadingPrefs } from '/features/appearance.js';
-import { initTabNav, goToTab } from '/features/tab-nav.js';
-import { shareOrCopy } from '/core/share.js';
-import { dateFormatter, localeFor } from '/core/date-format.js';
-import { localDateISO } from '/core/dateutil.js';
-import { toGrams, parseUnitInput } from '/core/unit-convert.js';
-import { initRecipeIdeas, openRecipeIdeas, openPantryIdeas } from '/features/recipe-ideas.js';
-import { initSettingsDialog } from '/features/settings-dialog.js';
-import { initKeybindings } from '/features/keybindings.js';
-import { initProfileDialog } from '/features/profile-dialog.js';
-import { initMenuScan, openMenuScan } from '/features/menu-scan.js';
-import { initMealPlanUI, renderMealPlan, openMealPlan } from '/features/meal-plan-ui.js';
-import { initTemplatesDialog } from '/features/templates-dialog.js';
-import { initRecipesDialog } from '/features/recipes-dialog.js';
-import { initQaAutocomplete } from '/features/qa-autocomplete.js';
-import { buildFastCompletion, saveFastCompletion, listFastHistory, computeFastStreak, clearFastHistory } from '/features/fasting-history.js';
-import { getDayNote, setDayNote, DAY_NOTE_MAX_CHARS } from '/features/day-notes.js';
-import { searchFoodDB, reconcileWithFoodDB } from '/data/food-db.js';
-import { listCustomFoods } from '/data/custom-food-db.js';
+import { t, setLang, currentLang, applyStaticTranslations } from './core/i18n.js';
+import { show, hide, toast, toastWithUndo } from './core/dom-helpers.js';
+import { enqueue, listPending } from './data/queue-store.js';
+import { saveScan, listScans, deleteScan, clearScans } from './data/scan-history.js';
+import { buildBackup, restoreBackup } from './backup.js';
+import { saveProfile, switchProfile, deleteProfile } from './profiles.js';
+import { isEnabled as telemetryEnabled, setEnabled as telemetrySetEnabled, logEvent as telemetryLog, clearEvents as telemetryClear, formatEvents as telemetryFormat } from './core/telemetry.js';
+import { initTelemetryUi } from './features/telemetry-ui.js';
+import { setSetting } from './core/app-settings.js';
+import { initHydration } from './features/hydration.js';
+import { initActivity } from './features/activity.js';
+import { initWeight, renderWeightSummary } from './features/weight.js';
+import { initReminders, scheduleReminders } from './features/reminders.js';
+import { initVoiceDictate } from './features/voice-dictate.js';
+import { initScanner, openCameraScanner, closeCameraScanner } from './features/scanner.js';
+import { maybeShowOnboarding } from './features/onboarding.js';
+import { initInstallBanner } from './features/install-banner.js';
+import { initUpdateChecker } from './features/update-checker.js';
+import { initComparison, maybeRenderComparison, compareArmed } from './features/comparison.js';
+import { initPortionPanel } from './features/portion-panel.js';
+import { initScanHistoryUi } from './features/scan-history-ui.js';
+import { initBackupIO } from './features/backup-io.js';
+import { initFasting, isFastingActive } from './features/fasting.js';
+import { initAppearance, applyAppearance, applyTheme, applyReadingPrefs } from './features/appearance.js';
+import { initTabNav, goToTab } from './features/tab-nav.js';
+import { shareOrCopy } from './core/share.js';
+import { dateFormatter, localeFor } from './core/date-format.js';
+import { localDateISO } from './core/dateutil.js';
+import { toGrams, parseUnitInput } from './core/unit-convert.js';
+import { initRecipeIdeas, openRecipeIdeas, openPantryIdeas } from './features/recipe-ideas.js';
+import { initSettingsDialog } from './features/settings-dialog.js';
+import { initKeybindings } from './features/keybindings.js';
+import { initProfileDialog } from './features/profile-dialog.js';
+import { initMenuScan, openMenuScan } from './features/menu-scan.js';
+import { initMealPlanUI, renderMealPlan, openMealPlan } from './features/meal-plan-ui.js';
+import { initTemplatesDialog } from './features/templates-dialog.js';
+import { initRecipesDialog } from './features/recipes-dialog.js';
+import { initQaAutocomplete } from './features/qa-autocomplete.js';
+import { buildFastCompletion, saveFastCompletion, listFastHistory, computeFastStreak, clearFastHistory } from './features/fasting-history.js';
+import { getDayNote, setDayNote, DAY_NOTE_MAX_CHARS } from './features/day-notes.js';
+import { searchFoodDB, reconcileWithFoodDB } from './data/food-db.js';
+import { listCustomFoods } from './data/custom-food-db.js';
 // pairings lookup (findPairings) is now only consumed inside
 // /features/scan-result-render.js — no longer imported here.
 import {
   getProfile, setProfile, hasMinimalProfile,
   bmrMifflinStJeor, tdeeKcal, bmi, bmiCategory, dailyTargets,
-} from '/data/profile.js';
-import { computePersonalScore } from '/core/personal-score.js';
-import { logEntry, logQuickAdd, listByDate, listAllEntries, deleteEntry, clearDate, dailyTotals, todayISO, putEntry } from '/data/consumption.js';
-import { logWeight, listWeight, deleteWeight, summarize as summarizeWeight, weeklyTrend } from '/data/weight-log.js';
-import { saveTemplate, listTemplates, deleteTemplate, expandTemplate, templateKcal } from '/data/meal-templates.js';
-import { saveRecipe, listRecipes, deleteRecipe, aggregateRecipe, buildRecipeProductInput } from '/data/recipes.js';
-import { initAddToRecipe } from '/features/add-to-recipe.js';
-import { aggregateGroceryList, formatGroceryList, initGroceryListDialog } from '/features/grocery-list.js';
+} from './data/profile.js';
+import { computePersonalScore } from './core/personal-score.js';
+import { logEntry, logQuickAdd, listByDate, listAllEntries, deleteEntry, clearDate, dailyTotals, todayISO, putEntry } from './data/consumption.js';
+import { logWeight, listWeight, deleteWeight, summarize as summarizeWeight, weeklyTrend } from './data/weight-log.js';
+import { saveTemplate, listTemplates, deleteTemplate, expandTemplate, templateKcal } from './data/meal-templates.js';
+import { saveRecipe, listRecipes, deleteRecipe, aggregateRecipe, buildRecipeProductInput } from './data/recipes.js';
+import { initAddToRecipe } from './features/add-to-recipe.js';
+import { aggregateGroceryList, formatGroceryList, initGroceryListDialog } from './features/grocery-list.js';
 // /features/meal-plan.js is consumed entirely via /features/meal-plan-ui.js
-import { logActivity, listActivityByDate, deleteActivity, buildActivityEntry, estimateKcalBurned, sumBurned } from '/data/activity.js';
-import { snapshotFromData, timeAgoBucket, defaultMealForHour, parseVoiceQuickAdd, waterGoalMl, weeklyRollup, monthlyRollup, fastingStatus, entriesToDailyCSV, nextOccurrenceMs, entriesToHealthJSON, weightForecast, formatWeeklyShare, formatMonthlyShare, formatPairingsShare, formatDailySummary, formatRecipeShare, formatTemplateShare, pctClass, filterScanHistory, summarizeScanHistory, topFoods } from '/core/presenters.js';
-import { FOOD_DB } from '/data/food-db.js';
-import { checkDiet } from '/core/diets.js';
-import { hasNativeCamera, hasNativeBarcodeScanner, nativeTakePhoto, nativeDetectBarcodeFromBase64 } from '/native-bridge.js';
-import { getBarcodeDetector, detectBarcodeFromFile } from '/features/barcode-scanner-detect.js';
-import { compressImage } from '/features/image-compression.js';
-import { renderQueue, addFiles, addBarcodeOnly, removeFromQueue, firstBarcode, queuePayload } from '/features/scan-queue-ui.js';
-import { initScanPipeline } from '/features/scan-pipeline.js';
-import { updatePendingBanner, retryPending } from '/features/offline-queue-sync.js';
-import { checkRecipeWarnings, checkTemplateWarnings, checkQuickAddWarnings } from '/core/user-content-checks.js';
-import { initScanResultRender } from '/features/scan-result-render.js';
-import { initCustomFoodsDayNotes, initCustomFoodsDialog, renderDayNote, applyViewToggle, getDashboardView } from '/features/custom-foods-day-notes.js';
-import { initDashboardCharts, renderWeeklyView, renderMonthlyView, renderDashboard, renderGapCloser, renderLineChart, renderProgressCharts, round1, round3 } from '/features/dashboard-charts.js';
-import { initQaPhotoId, setQaStatus, setQaLoadingPhases, identifyViaModePath, readQaForm } from '/features/qa-photo-identify.js';
-import { setProfilesStatus, renderProfilesUI, initProfilesDialog } from '/features/profiles-ui.js';
+import { logActivity, listActivityByDate, deleteActivity, buildActivityEntry, estimateKcalBurned, sumBurned } from './data/activity.js';
+import { snapshotFromData, timeAgoBucket, defaultMealForHour, parseVoiceQuickAdd, waterGoalMl, weeklyRollup, monthlyRollup, fastingStatus, entriesToDailyCSV, nextOccurrenceMs, entriesToHealthJSON, weightForecast, formatWeeklyShare, formatMonthlyShare, formatPairingsShare, formatDailySummary, formatRecipeShare, formatTemplateShare, pctClass, filterScanHistory, summarizeScanHistory, topFoods } from './core/presenters.js';
+import { FOOD_DB } from './data/food-db.js';
+import { checkDiet } from './core/diets.js';
+import { hasNativeCamera, hasNativeBarcodeScanner, nativeTakePhoto, nativeDetectBarcodeFromBase64 } from './native-bridge.js';
+import { getBarcodeDetector, detectBarcodeFromFile } from './features/barcode-scanner-detect.js';
+import { compressImage } from './features/image-compression.js';
+import { renderQueue, addFiles, addBarcodeOnly, removeFromQueue, firstBarcode, queuePayload } from './features/scan-queue-ui.js';
+import { initScanPipeline } from './features/scan-pipeline.js';
+import { updatePendingBanner, retryPending } from './features/offline-queue-sync.js';
+import { checkRecipeWarnings, checkTemplateWarnings, checkQuickAddWarnings } from './core/user-content-checks.js';
+import { initScanResultRender } from './features/scan-result-render.js';
+import { initCustomFoodsDayNotes, initCustomFoodsDialog, renderDayNote, applyViewToggle, getDashboardView } from './features/custom-foods-day-notes.js';
+import { initDashboardCharts, renderWeeklyView, renderMonthlyView, renderDashboard, renderGapCloser, renderLineChart, renderProgressCharts, round1, round3 } from './features/dashboard-charts.js';
+import { initQaPhotoId, setQaStatus, setQaLoadingPhases, identifyViaModePath, readQaForm } from './features/qa-photo-identify.js';
+import { setProfilesStatus, renderProfilesUI, initProfilesDialog } from './features/profiles-ui.js';
 
 // Safari private mode + some embedded WebViews disable localStorage writes
 // (getItem returns null silently, but setItem/removeItem throw). Shim the
@@ -153,7 +153,8 @@ const MAX_IMAGES = 4;
 
 const isCapacitor = !!globalThis.Capacitor?.isNativePlatform?.();
 
-import { queue } from '/state/scan-queue-state.js'; // single source of truth (was: local array)
+import { queue } from './state/scan-queue-state.js'; // single source of truth (was: local array)
+import { apiUrl } from './core/api-base.js';
 let lastData = null;
 
 // Assigned in the boot block once initRecipesDialog runs. Declared here
@@ -173,7 +174,7 @@ let recipesDialog = null;
 let engineMod = null;
 async function loadEngine() {
   if (engineMod) return engineMod;
-  engineMod = await import('/engine.bundle.js');
+  engineMod = await import('./engine.bundle.js');
   return engineMod;
 }
 
@@ -428,7 +429,7 @@ async function maybeRenderAlternatives(data) {
 async function ensureAdditivesIndex() {
   if (window.__additivesIndex) return;
   try {
-    const mod = await import('/engine.bundle.js');
+    const mod = await import('./engine.bundle.js');
     if (mod.ADDITIVES_DB) {
       const idx = {};
       for (const a of mod.ADDITIVES_DB) idx[a.e_number] = a;
@@ -670,7 +671,7 @@ $('csv-import-file')?.addEventListener('change', async (e) => {
     }
   }
   try {
-    const { parseCsvImport } = await import('/features/csv-import.js');
+    const { parseCsvImport } = await import('./features/csv-import.js');
     const text = await file.text();
     const { format, entries, errors } = parseCsvImport(text);
     if (format === 'unknown') {
@@ -992,7 +993,7 @@ qaPhotoInput?.addEventListener('change', async (e) => {
     const result = await identifyViaModePath({
       images,
       directFn: (engine, imgs, opts) => engine.identifyFood(imgs, opts),
-      serverUrl: '/api/identify',
+      serverUrl: apiUrl('/api/identify'),
     });
     // Reconcile with the built-in DB: if the identified name matches a
     // CIQUAL entry, swap the LLM's guessed macros for the DB's authoritative
@@ -1034,7 +1035,7 @@ $('qa-photo-multi-input')?.addEventListener('change', async (e) => {
     const result = await identifyViaModePath({
       images,
       directFn: (engine, imgs, opts) => engine.identifyMultiFood(imgs, opts),
-      serverUrl: '/api/identify-multi',
+      serverUrl: apiUrl('/api/identify-multi'),
     });
     const items = Array.isArray(result?.items) ? result.items : [];
     if (items.length === 0) {
@@ -1081,7 +1082,7 @@ $('qa-photo-menu-input')?.addEventListener('change', async (e) => {
     const result = await identifyViaModePath({
       images,
       directFn: (engine, imgs, opts) => engine.identifyMenu(imgs, opts),
-      serverUrl: '/api/identify-menu',
+      serverUrl: apiUrl('/api/identify-menu'),
     });
     const dishes = Array.isArray(result?.dishes) ? result.dishes : [];
     if (dishes.length === 0) {

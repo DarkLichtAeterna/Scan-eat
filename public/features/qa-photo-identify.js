@@ -37,7 +37,7 @@
  * setQaLoadingPhases, exactly as it was in app.js — no new sharing
  * surface introduced.
  */
-import { show, hide } from '/core/dom-helpers.js';
+import { show, hide } from '../core/dom-helpers.js';
 
 const $ = (id) => document.getElementById(id);
 

@@ -22,17 +22,18 @@
  * looked up by id directly, matching the existing convention in this
  * cluster — no id renaming in this restructuring (H6).
  */
-import { show, hide } from '/core/dom-helpers.js';
-import { queue } from '/state/scan-queue-state.js';
-import { queuePayload, firstBarcode } from '/features/scan-queue-ui.js';
-import { maybeRenderComparison } from '/features/comparison.js';
-import { enqueue } from '/data/queue-store.js';
-import { findScanByBarcode } from '/data/scan-history.js';
-import { logEvent as telemetryLog } from '/core/telemetry.js';
-import { computePersonalScore } from '/core/personal-score.js';
-import { getProfile } from '/data/profile.js';
-import { currentLang } from '/core/i18n.js';
-import { goToTab } from '/features/tab-nav.js';
+import { show, hide } from '../core/dom-helpers.js';
+import { queue } from '../state/scan-queue-state.js';
+import { queuePayload, firstBarcode } from './scan-queue-ui.js';
+import { maybeRenderComparison } from './comparison.js';
+import { enqueue } from '../data/queue-store.js';
+import { findScanByBarcode } from '../data/scan-history.js';
+import { logEvent as telemetryLog } from '../core/telemetry.js';
+import { computePersonalScore } from '../core/personal-score.js';
+import { getProfile } from '../data/profile.js';
+import { currentLang } from '../core/i18n.js';
+import { goToTab } from './tab-nav.js';
+import { apiUrl } from '../core/api-base.js';
 
 const $ = (id) => document.getElementById(id);
 const errorEl = $('error');
@@ -47,7 +48,7 @@ function initScanPipeline(deps) {
     setLastData } = deps;
 
   async function scanViaServer() {
-    const res = await fetch('/api/score', {
+    const res = await fetch(apiUrl('/api/score'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ images: queuePayload(), barcode: firstBarcode() }),

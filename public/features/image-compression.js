@@ -4,7 +4,7 @@
  * (deps.compressImage). ADR-0004 feature-folder pattern, extracted per the
  * app.js decomposition plan (Phase 4).
  */
-import { laplacianVariance, sharpnessVerdict } from '/core/presenters.js';
+import { laplacianVariance, sharpnessVerdict } from '../core/presenters.js';
 
 const MAX_SHORT_SIDE = 1024;
 const JPEG_QUALITY = 0.85;

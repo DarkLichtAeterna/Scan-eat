@@ -11,7 +11,7 @@
  * serialisation. The snapshot shape is the backup shape.
  */
 
-import { buildBackup, restoreBackup } from '/backup.js';
+import { buildBackup, restoreBackup } from './backup.js';
 
 const LS_PROFILES_LIST = 'scanneat.profiles.list';
 const LS_PROFILES_ACTIVE = 'scanneat.profiles.active';

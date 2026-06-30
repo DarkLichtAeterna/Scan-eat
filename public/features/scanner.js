@@ -22,7 +22,7 @@
  *   - The #camera-dialog / torch DOM is only used on the web path.
  */
 
-import { nativeScanBarcode } from '/native-bridge.js';
+import { nativeScanBarcode } from '../native-bridge.js';
 
 let deps = null;
 let cameraStream = null;

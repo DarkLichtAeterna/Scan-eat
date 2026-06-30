@@ -32,7 +32,7 @@ import {
   weekDates, getDayPlan, setSlot, clearDay,
   clearAll as clearMealPlan, planRecipes,
   MEAL_PLAN_MEALS, isoToday,
-} from '/features/meal-plan.js';
+} from './meal-plan.js';
 
 let deps = null;
 let mealPlanDialog = null;

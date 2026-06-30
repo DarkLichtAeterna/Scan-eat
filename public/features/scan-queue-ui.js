@@ -10,11 +10,11 @@
  * by id directly, matching the existing convention in this cluster — no id
  * renaming in this restructuring (H6).
  */
-import { t } from '/core/i18n.js';
-import { show, hide, toast } from '/core/dom-helpers.js';
-import { queue } from '/state/scan-queue-state.js';
-import { detectBarcodeFromFile } from '/features/barcode-scanner-detect.js';
-import { compressImage } from '/features/image-compression.js';
+import { t } from '../core/i18n.js';
+import { show, hide, toast } from '../core/dom-helpers.js';
+import { queue } from '../state/scan-queue-state.js';
+import { detectBarcodeFromFile } from './barcode-scanner-detect.js';
+import { compressImage } from './image-compression.js';
 
 const $ = (id) => document.getElementById(id);
 const queueEl = $('queue');

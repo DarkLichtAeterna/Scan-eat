@@ -34,11 +34,11 @@
  * #dashboard-rows, #dashboard-log) — matching the existing convention
  * in this cluster. No id renaming in this restructuring (H6).
  */
-import { show, hide, toast } from '/core/dom-helpers.js';
-import { t } from '/core/i18n.js';
-import { listCustomFoods, deleteCustomFood, saveCustomFood } from '/data/custom-food-db.js';
-import { getDayNote, DAY_NOTE_MAX_CHARS } from '/features/day-notes.js';
-import { todayISO } from '/data/consumption.js';
+import { show, hide, toast } from '../core/dom-helpers.js';
+import { t } from '../core/i18n.js';
+import { listCustomFoods, deleteCustomFood, saveCustomFood } from '../data/custom-food-db.js';
+import { getDayNote, DAY_NOTE_MAX_CHARS } from './day-notes.js';
+import { todayISO } from '../data/consumption.js';
 
 const $ = (id) => document.getElementById(id);
 

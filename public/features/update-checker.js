@@ -1,3 +1,4 @@
+import { apiUrl } from '../core/api-base.js';
 /**
  * Auto-update checker (APK / Capacitor builds only).
  *
@@ -20,13 +21,13 @@
  *   stack timers).
  */
 
-const GITHUB_REPO = 'WW-Andene/Scan\'eat';
+const GITHUB_REPO = 'DarkLichtAeterna/Scan-eat';
 const UPDATE_CHECK_INTERVAL_MS = 12 * 60 * 60 * 1000;
 const LS_DISMISSED_VERSION = 'scanneat.dismissed_update';
 
 async function currentCommit() {
   try {
-    const r = await fetch('/version.json', { cache: 'no-cache' });
+    const r = await fetch(apiUrl('/version.json'), { cache: 'no-cache' });
     if (!r.ok) return null;
     return (await r.json()).commit || null;
   } catch { return null; }
