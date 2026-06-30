@@ -32,6 +32,7 @@ import { logEvent as telemetryLog } from '/core/telemetry.js';
 import { computePersonalScore } from '/core/personal-score.js';
 import { getProfile } from '/data/profile.js';
 import { currentLang } from '/core/i18n.js';
+import { goToTab } from '/features/tab-nav.js';
 
 const $ = (id) => document.getElementById(id);
 const errorEl = $('error');
@@ -199,6 +200,7 @@ function initScanPipeline(deps) {
       renderIngredients(data.product);
       renderNutrition(data.product);
       show(resultEl);
+      goToTab('scan');
       // Fix #17: compute personal score here (same call as renderPersonalScore)
       // and attach it to the record so scan-history can show how the user's
       // dietary context changed the evaluation retrospectively.

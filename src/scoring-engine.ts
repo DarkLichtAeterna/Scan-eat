@@ -2300,7 +2300,19 @@ function checkVeto(product: ProductInput): VetoCondition {
   }
 
   // Processed meat combo: nitrites + high salt + refined starch
+  // R-fix: this only substring-matched ing.name for "nitrite"/"e249"/
+  // "e250". When ingredients come from structured OFF/LLM parsing,
+  // the e_number is frequently carried in its own field (ing.e_number
+  // = 'E250') with a name like "Conservateur" or "Sel nitrité" that
+  // never spells out the E-number in text — those entries silently
+  // failed to trigger nitrite detection at all, undercounting risk on
+  // exactly the processed-meat combo this veto exists to catch. Check
+  // the structured field first; the text fallback still covers labels
+  // that spell out "nitrite de sodium (E250)" without a separate
+  // e_number being populated.
   const hasNitrites = ingredients.some((ing) => {
+    const eNum = (ing.e_number || '').toUpperCase().replace(/\s/g, '');
+    if (eNum === 'E249' || eNum === 'E250') return true;
     const n = ing.name.toLowerCase();
     return n.includes('nitrite') || n.includes('e249') || n.includes('e250');
   });

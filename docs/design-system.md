@@ -90,8 +90,25 @@ downstream rule reads the same variable name.
 Diverging scale from green to red, 6 stops. Used **as background fill**
 behind dark `--on-muted` text (`#1B1B1F`) — all six pass WCAG AA in both
 themes. Color-blind users are served by per-grade PATTERN OVERLAYS (dots,
-stripes, cross-hatch) on `.recent-grade`, `.compare-grade`, etc. — these
-patterns are protected (audit F-DC-03).
+stripes, cross-hatch) — these patterns are protected (audit F-DC-03).
+
+**2026-06 pattern-overlay audit:** tracing every place a grade actually
+renders found the protection was incomplete — A+ had no pattern on any
+element (the exact A+/A pair color-blind users most need help with,
+since both are green), `.grade`/`.grade-chip` (the hero scan-result and
+personal-score chips — "the grade IS the product") had no pattern at
+all, and `.recipe-row-grade`/`.recipe-edit-grade` got the
+isolation/positioning setup but no actual `::after` rules. Worse,
+`.recipe-row-grade` (recipe list rows, meal-entry recipe tags) had no
+base styling anywhere — no grade background color, no size, no shape —
+so it rendered as bare text, not a chip. All fixed: every grade-bearing
+selector (`.grade`, `.grade-chip`, `.recent-grade`, `.compare-grade`,
+`.recipe-row-grade`, `.recipe-edit-grade`) now gets all six patterns,
+A+ included (fine dot, denser than A's dot — same visual language,
+distinguishable under magnification), and `.recipe-row-grade` has a
+real chip definition. `.recent-summary-grade` (history filter chips)
+was checked and left alone — it never encoded grade by color, only
+text, so there was nothing to fix there.
 
 ### Radii
 
@@ -120,10 +137,18 @@ token.
 
 ## Theme switching
 
-The lang / theme settings map to `<html data-theme="dark|light">`. A
-third option ("auto") watches `prefers-color-scheme` via
-`matchMedia('(prefers-color-scheme: light)')` and applies `dark` or
-`light` accordingly. See `public/app.js:applyTheme`.
+The lang / theme settings map to `<html data-theme="dark|light|oled">`.
+**OLED noir is the default** (2026-06): true `#000000` page background,
+near-black panel steps for layering, coral pulled back to an accent hint
+on buttons/active surfaces rather than the dominant fill — see the
+`[data-theme="oled"]` block in `styles.refactored.css` for the full
+token set. Users can switch to the original coral-paper "Sombre" theme
+or "Clair" (light) explicitly in Settings → Apparence; a third option
+("Système") watches `prefers-color-scheme` via
+`matchMedia('(prefers-color-scheme: light)')` and applies `light` or
+falls back to `oled` accordingly. See `public/features/appearance.js:applyTheme`.
+An inline pre-paint script in `<head>` reads the same `localStorage` key
+before first render so there's no flash of the wrong theme.
 
 ## Typography
 
@@ -144,8 +169,29 @@ third option ("auto") watches `prefers-color-scheme` via
 summary / macro / score value inherits tabular-nums automatically;
 columns align without custom `font-variant-numeric` rules per site.
 
+### Type pairing — three distinct roles, not one face doing everything
+- **Body** — Atkinson Hyperlegible. Optimised for reading comfort and
+  accessibility; never used for hero numerals.
+- **Display (headings, labels, CTAs)** — Lexend, via `--font-display`.
+  App name, `h1`/`h2`/`h3`, dialog titles, hub-card labels, the
+  Analyser button.
+- **Numeric (grade letters, score numbers)** — Space Grotesk, via
+  `--font-numeric` (added 2026-06). Grade chips, `.score strong`,
+  `.dash-value`, `.ws-value`, `.recent-grade`, `.compare-score` all use
+  it, with `tnum`/`lnum`/`ss01` feature settings and -0.01em tracking.
+  Previously these reused `--font-display` (Lexend) — same face as the
+  headings, so the "pairing" was really just one typeface doing every
+  job. Space Grotesk's squared, geometric digits read as a deliberate
+  second voice against Atkinson's humanist body warmth, while still
+  sharing Lexend's general weight/contrast so nothing clashes.
+  `body.font-system` (the "fully native" accessibility override)
+  collapses `--font-numeric` to `system-ui` along with everything else;
+  `body.font-lexend` (a reading-font swap, not an accessibility
+  flattening) leaves it on Space Grotesk.
+
 ### Letter-spacing rule of thumb
 - Display sizes (`--text-xl`/`--text-2xl`): `-0.02em`.
+- Numeric figures (grade/score): `-0.01em`.
 - Small caps labels (uppercase section headers): `0.08em`.
 - Everything else: default (no manual tracking).
 
@@ -157,9 +203,10 @@ columns align without custom `font-variant-numeric` rules per site.
   Menlo, Consolas, "Liberation Mono", monospace`. Used in `.app-toast-action`
   and the progress-dialog CSV export textarea.
 - **Loading:** Google Fonts `<link>` in `index.html` (not CSS `@import`)
-  so discovery happens during HTML parse. 4 weights shipped: Atkinson
-  400/700, Lexend 400/600/700 (italic + Lexend 500 retired 2026-04 per
-  audit F-DT-01 — unused in the 131 weight declarations).
+  so discovery happens during HTML parse. 5 weights shipped: Atkinson
+  400/700, Lexend 400/600/700, Space Grotesk 500/700 (italic + Lexend
+  500 retired 2026-04 per audit F-DT-01 — unused in the 131 weight
+  declarations).
 - Two size modifiers on `<body>`: `.font-size-large` (20px) and
   `.font-size-xlarge` (22px). Default inherits from the browser.
 - No custom web fonts shipped by default — first paint stays under the

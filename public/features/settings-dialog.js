@@ -57,7 +57,7 @@ export function initSettingsDialog(deps) {
     keyInput.value = getKey();
     modeSelect.value = localStorage.getItem(LS_MODE) || (isCapacitor ? 'direct' : 'auto');
     langSelect.value = currentLang();
-    themeSelect.value = localStorage.getItem(LS_THEME) || 'dark';
+    themeSelect.value = localStorage.getItem(LS_THEME) || 'oled';
     const fontSizeSel = $('settings-font-size');
     const fontFamSel = $('settings-font-family');
     const motionSel = $('settings-motion');
@@ -215,11 +215,18 @@ export function initSettingsDialog(deps) {
 
   calibrationRunBtn?.addEventListener('click', renderCalibration);
 
-  // Render on dialog open so it's ready when the user scrolls down.
-  $('settings-btn')?.addEventListener('click', () => {
-    // Small delay so the dialog animation doesn't compete with IDB read.
-    setTimeout(renderCalibration, 200);
-  }, { capture: true });
+  // Previously this ran on every Settings open (200ms after click,
+  // racing the dialog animation) regardless of whether the user cared
+  // about pillar calibration — an IndexedDB read + Spearman correlation
+  // pass for a debug/power-user table that's now tucked into a
+  // collapsed <details> most people will never open. Removed: it now
+  // only computes when the section is actually expanded.
+  $('calibration-fieldset')?.addEventListener('toggle', (e) => {
+    if (e.target.open && calibrationPlaceholder && !calibrationPlaceholder.dataset.computed) {
+      calibrationPlaceholder.dataset.computed = '1';
+      renderCalibration();
+    }
+  });
 
   settingsCancel?.addEventListener('click', (e) => {
     e.preventDefault();

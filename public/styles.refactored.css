@@ -199,6 +199,12 @@
                           "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono:            "Lexend", ui-monospace, SFMono-Regular, "SF Mono",
                           Monaco, Consolas, "Liberation Mono", monospace;
+  /* Fallback only — styles.rework.css §3 owns the real definition
+     (Space Grotesk) and overrides this. Kept here so .grade/.score
+     numerics don't silently fall back to --font-sans if the rework
+     layer is ever omitted. */
+  --font-numeric:         "Lexend", "Atkinson Hyperlegible", -apple-system,
+                          BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   color-scheme: dark;
 }
@@ -255,10 +261,14 @@ body {
 body.font-lexend {
   --font-sans: "Lexend", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-display: "Lexend", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Reading-font override is an accessibility choice, not a design
+     preference — keep the Space Grotesk numeric pairing for grade/score
+     figures rather than collapsing it back to Lexend. */
 }
 body.font-system {
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-display: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-numeric: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 /* font-size-large / xlarge scale every rem-based value in the app since
    the whole type scale (--text-*) is defined in rem off the root size.
@@ -823,8 +833,7 @@ dialog.progress-dialog,
 dialog.pantry-dialog,
 dialog.grocery-dialog,
 dialog.quick-add-dialog,
-dialog.explain-dialog,
-dialog.camera-dialog {
+dialog.explain-dialog {
   background: var(--panel);
   color: var(--text);
   border-radius: var(--r-xl);
@@ -1229,7 +1238,18 @@ header h1 {
 .grade[data-grade="D"],  .grade-chip[data-grade="D"]  { background: var(--grade-d);     }
 .grade[data-grade="F"],  .grade-chip[data-grade="F"]  { background: var(--grade-f);     }
 
-/* Color-blind pattern overlays — protected element */
+/* Color-blind pattern overlays — protected element.
+   2026-06 audit: previously only .recent-grade/.compare-grade had any
+   ::after rules, A+ had no pattern on any element, and .recipe-row-grade/
+   .recipe-edit-grade got the isolation/position setup but no actual
+   pattern — meaning the *hero* chip (.grade/.grade-chip, used for the
+   main scan result and the personal-score overlay) and the recipe
+   grade chips were color-only. Fixed: every selector below gets all
+   six grades, including A+ (fine dot — a denser version of A's dot,
+   so the top two grades stay relatable as "more of the same" while
+   still being distinguishable under magnification). */
+.grade,
+.grade-chip,
 .recent-grade,
 .compare-grade,
 .recipe-row-grade,
@@ -1237,16 +1257,42 @@ header h1 {
   position: relative;
   isolation: isolate;
 }
+.grade[data-grade="A+"]::after,
+.grade-chip[data-grade="A+"]::after,
+.recent-grade[data-grade="A+"]::after,
+.compare-grade[data-grade="A+"]::after,
+.recipe-row-grade[data-grade="A+"]::after,
+.recipe-edit-grade[data-grade="A+"]::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle, rgba(0,0,0,0.20) 1px, transparent 1.4px); background-size: 4px 4px; border-radius: inherit; pointer-events: none; }
+.grade[data-grade="A"]::after,
+.grade-chip[data-grade="A"]::after,
 .recent-grade[data-grade="A"]::after,
-.compare-grade[data-grade="A"]::after  { content: ""; position: absolute; inset: 0; background: radial-gradient(circle, rgba(0,0,0,0.18) 1px, transparent 1.5px); background-size: 6px 6px; border-radius: inherit; pointer-events: none; }
+.compare-grade[data-grade="A"]::after,
+.recipe-row-grade[data-grade="A"]::after,
+.recipe-edit-grade[data-grade="A"]::after  { content: ""; position: absolute; inset: 0; background: radial-gradient(circle, rgba(0,0,0,0.18) 1px, transparent 1.5px); background-size: 6px 6px; border-radius: inherit; pointer-events: none; }
+.grade[data-grade="B"]::after,
+.grade-chip[data-grade="B"]::after,
 .recent-grade[data-grade="B"]::after,
-.compare-grade[data-grade="B"]::after  { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent 0 4px, rgba(0,0,0,0.15) 4px 5px); border-radius: inherit; pointer-events: none; }
+.compare-grade[data-grade="B"]::after,
+.recipe-row-grade[data-grade="B"]::after,
+.recipe-edit-grade[data-grade="B"]::after  { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent 0 4px, rgba(0,0,0,0.15) 4px 5px); border-radius: inherit; pointer-events: none; }
+.grade[data-grade="C"]::after,
+.grade-chip[data-grade="C"]::after,
 .recent-grade[data-grade="C"]::after,
-.compare-grade[data-grade="C"]::after  { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(-45deg, transparent 0 4px, rgba(0,0,0,0.15) 4px 5px); border-radius: inherit; pointer-events: none; }
+.compare-grade[data-grade="C"]::after,
+.recipe-row-grade[data-grade="C"]::after,
+.recipe-edit-grade[data-grade="C"]::after  { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(-45deg, transparent 0 4px, rgba(0,0,0,0.15) 4px 5px); border-radius: inherit; pointer-events: none; }
+.grade[data-grade="D"]::after,
+.grade-chip[data-grade="D"]::after,
 .recent-grade[data-grade="D"]::after,
-.compare-grade[data-grade="D"]::after  { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent 0 4px, rgba(0,0,0,0.18) 4px 5.5px); border-radius: inherit; pointer-events: none; }
+.compare-grade[data-grade="D"]::after,
+.recipe-row-grade[data-grade="D"]::after,
+.recipe-edit-grade[data-grade="D"]::after  { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent 0 4px, rgba(0,0,0,0.18) 4px 5.5px); border-radius: inherit; pointer-events: none; }
+.grade[data-grade="F"]::after,
+.grade-chip[data-grade="F"]::after,
 .recent-grade[data-grade="F"]::after,
-.compare-grade[data-grade="F"]::after  { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 3px, rgba(0,0,0,0.20) 3px 5px), repeating-linear-gradient(0deg, transparent 0 3px, rgba(0,0,0,0.20) 3px 5px); border-radius: inherit; pointer-events: none; }
+.compare-grade[data-grade="F"]::after,
+.recipe-row-grade[data-grade="F"]::after,
+.recipe-edit-grade[data-grade="F"]::after  { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 3px, rgba(0,0,0,0.20) 3px 5px), repeating-linear-gradient(0deg, transparent 0 3px, rgba(0,0,0,0.20) 3px 5px); border-radius: inherit; pointer-events: none; }
 
 /* Grade-reveal motion — protected signature element */
 @keyframes scanneat-grade-land {
@@ -2223,6 +2269,32 @@ header h1 {
   color: var(--muted);
 }
 
+/* .recipe-row-grade had no base styling anywhere in the stylesheet —
+   only the isolation/pattern hooks above and a light-theme F outline
+   referenced it. Without this it renders as bare unstyled text in the
+   recipe list (recipes-dialog.js) and meal-entry recipe tags
+   (dashboard-charts.js), with no grade color at all. Modeled on
+   .recipe-edit-grade, the chip it's meant to sit alongside. */
+.recipe-row-grade {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  font-weight: 800;
+  font-feature-settings: var(--num-feat);
+  background: var(--muted);
+  color: var(--on-muted);
+}
+.recipe-row-grade[data-grade="A+"] { background: var(--grade-aplus); }
+.recipe-row-grade[data-grade="A"]  { background: var(--grade-a); }
+.recipe-row-grade[data-grade="B"]  { background: var(--grade-b); }
+.recipe-row-grade[data-grade="C"]  { background: var(--grade-c); }
+.recipe-row-grade[data-grade="D"]  { background: var(--grade-d); }
+.recipe-row-grade[data-grade="F"]  { background: var(--grade-f); }
+
 .recipe-edit-grade {
   display: inline-grid;
   place-items: center;
@@ -2512,8 +2584,9 @@ dialog#menu-scan-dialog[data-mode="plate"] #menu-scan-bulk {
    22. CAMERA · VOICE DICTATE · BARCODE
    ===================================================================== */
 
-.camera-dialog {
+dialog.camera-dialog {
   max-width: 100vw;
+  max-height: 100dvh;
   height: 100dvh;
   margin: 0;
   padding: 0;
@@ -2521,6 +2594,7 @@ dialog#menu-scan-dialog[data-mode="plate"] #menu-scan-bulk {
   background: black;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 .camera-frame {
   flex: 1;
@@ -2973,6 +3047,109 @@ body.reduce-motion [aria-busy="true"]::before {
   opacity: 0.04;
 }
 
+/* =====================================================================
+   29b. OLED THEME — true black, coral as accent/gradient hint only.
+   Unlike the default "dark" theme (coral paper + near-black cards),
+   this theme inverts the ratio: backgrounds drop to true #000000 so
+   OLED panels can power off those pixels entirely, and coral is
+   pulled back to a hinted role — small gradients on the accent
+   surfaces (buttons, active states, highlighted cards) rather than
+   the dominant fill. Visual reference: dark navy/black app shells
+   with a single coral "now playing" card and a coral gradient glow,
+   not a coral background.
+   ===================================================================== */
+[data-theme="oled"] {
+  /* surfaces — true black, then near-black steps for layering */
+  --bg:                   #000000;
+  --bg-deep:              #050507;
+  --panel:                #0A0A0D;
+  --panel-2:              #131318;
+  --panel-3:              #1C1C23;
+
+  /* text */
+  --text:                 #F5F0E8;
+  --text-on-bg:           #F5F0E8;
+  --text-disabled:        rgba(245, 240, 232, 0.32);
+  --muted:                #8B8790;
+  --muted-on-bg:          rgba(245, 240, 232, 0.60);
+
+  /* action — coral kept as the accent hint, not the surface fill */
+  --accent:               #FF5C6C;
+  --accent-hover:         #FF7C89;
+  --accent-pressed:       #D43E50;
+  --accent-focus:         #FF7C89;
+  --accent-ink:           #15050A;
+  --accent-warm:          #E8B76B;
+
+  /* coral gradient hint — used on buttons, active cards, glows only */
+  --grad-accent:          linear-gradient(135deg, #FF6B45 0%, #D43E6A 100%);
+  --grad-accent-soft:     linear-gradient(135deg, rgba(255,107,69,0.14) 0%, rgba(212,62,106,0.14) 100%);
+  --grad-bg-hint:         radial-gradient(120% 90% at 50% 0%, rgba(212,62,106,0.16) 0%, rgba(0,0,0,0) 60%);
+
+  --border:               rgba(245, 240, 232, 0.08);
+  --border-strong:        rgba(245, 240, 232, 0.18);
+  --border-focus:         var(--accent-focus);
+  --danger:               #FF5C6C;
+  --warning:              #F5B441;
+  --success:              #4CD97A;
+
+  --input-bg:             #131318;
+  --on-muted:             #F5F0E8;
+
+  --selection-bg:         rgba(255, 92, 108, 0.32);
+  --selection-fg:         var(--text);
+
+  /* grade colors stay legible against true black */
+  --grade-aplus:          #4CD97A;
+  --grade-a:              #9BDB5E;
+  --grade-b:              #F0D24A;
+  --grade-c:              #F59A45;
+  --grade-d:              #FF6E50;
+  --grade-f:              #FF5C6C;
+
+  /* elevation — soft coral-tinted glow instead of pure black shadow,
+     since black-on-black shadows are invisible */
+  --elev-sm:              0 1px 2px rgba(0, 0, 0, 0.6), 0 3px 10px rgba(212, 62, 106, 0.05);
+  --elev-md:              0 2px 4px rgba(0, 0, 0, 0.7), 0 10px 24px rgba(212, 62, 106, 0.08);
+  --elev-lg:              0 3px 10px rgba(0, 0, 0, 0.7), 0 20px 44px rgba(212, 62, 106, 0.10);
+  --elev-hero:            0 6px 14px rgba(0, 0, 0, 0.75), 0 28px 60px rgba(212, 62, 106, 0.14);
+  --glow-focus:           0 0 0 3px var(--accent-focus), 0 0 0 6px rgba(255, 92, 108, 0.20);
+
+  color-scheme: dark;
+}
+
+/* True black page background — no coral paper, just a faint top-of-
+   screen coral hint (radial gradient) echoing the reference art so
+   the screen doesn't read as flat/dead, while every other pixel can
+   stay #000 for OLED power saving. */
+[data-theme="oled"] body {
+  background:
+    var(--grad-bg-hint),
+    var(--bg);
+}
+
+/* Cards / dialogs stay near-black panels, never solid coral. */
+[data-theme="oled"] .card,
+[data-theme="oled"] dialog {
+  background: var(--panel);
+}
+
+/* The one place coral is allowed to dominate: the active/selected
+   surface (e.g. the currently-playing station card, the primary
+   capture button) — as a gradient, matching the reference art. */
+[data-theme="oled"] .capture-btn,
+[data-theme="oled"] #scan-btn:not(:disabled),
+[data-theme="oled"] .grade-chip[data-grade="A+"],
+[data-theme="oled"] .grade-chip[data-grade="A"] {
+  background: var(--grad-accent);
+}
+
+/* Paper-grain texture is tuned for coral/light backgrounds; on true
+   black it just looks like static, so drop it. */
+[data-theme="oled"] body::before {
+  display: none;
+}
+
 /* ============================================================
  * Backport: classes present in legacy styles.css
  * but absent from styles.refactored.css.
@@ -3031,6 +3208,43 @@ body.reduce-motion [aria-busy="true"]::before {
   gap: var(--sp-2);
   flex-wrap: wrap;
   margin-top: var(--sp-2);
+}
+
+/* Generic small metadata pill (source/confidence/eco-score). Was
+   previously undefined — these three spans had class="chip" in the
+   HTML but no matching rule existed anywhere, so they rendered as
+   unstyled inline text at the same visual weight as a heading. That
+   made the eco-score chip in particular look like a primary verdict
+   instead of a small secondary metadata badge. */
+.meta-chips .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  font-size: var(--text-xs, 0.78rem);
+  font-weight: 600;
+  line-height: 1.4;
+  background: var(--surface-muted, rgba(255, 255, 255, 0.06));
+  color: var(--text-muted, var(--text));
+  border: 1px solid var(--border);
+}
+
+/* Eco-score: deliberately NOT the grade-a/b/c green-to-red palette used
+   by the classic/personal health score above. Environmental impact and
+   nutritional/processing quality are independent axes (a product can be
+   eco-friendly and ultra-processed at once) — reusing the health-score
+   colour scale here would visually imply "good for you", which is the
+   one thing this badge does not claim. Teal/blue signals "a different
+   kind of measurement" at a glance, no reading required. */
+#result-ecoscore {
+  background: rgba(58, 158, 173, 0.16);
+  color: var(--text);
+  border-color: rgba(58, 158, 173, 0.4);
+}
+#result-ecoscore::before {
+  content: "🌱";
+  font-size: 0.85em;
 }
 
 /* --- .pending-retry --- */

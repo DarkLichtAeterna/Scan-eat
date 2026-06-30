@@ -22,6 +22,7 @@ import { initScanHistoryUi } from '/features/scan-history-ui.js';
 import { initBackupIO } from '/features/backup-io.js';
 import { initFasting, isFastingActive } from '/features/fasting.js';
 import { initAppearance, applyAppearance, applyTheme, applyReadingPrefs } from '/features/appearance.js';
+import { initTabNav, goToTab } from '/features/tab-nav.js';
 import { shareOrCopy } from '/core/share.js';
 import { dateFormatter, localeFor } from '/core/date-format.js';
 import { localDateISO } from '/core/dateutil.js';
@@ -138,15 +139,10 @@ const historySearchInput = $('history-search');
 const historyGradeSelect = $('history-grade');
 const additiveSummaryEl = $('additive-summary');
 const shareBtn = $('share-btn');
-const themeSelect = $('settings-theme');
 
 const LS_KEY = 'scanneat.groq_key';
 const LS_MODE = 'scanneat.mode';
 const LS_PREFS = 'scanneat.prefs';
-const LS_THEME = 'scanneat.theme';
-const LS_FONT_SIZE = 'scanneat.font_size';     // 'normal' | 'large' | 'xlarge'
-const LS_FONT_FAMILY = 'scanneat.font_family'; // 'atkinson' | 'lexend' | 'system'
-const LS_MOTION = 'scanneat.motion';            // 'normal' | 'reduced'
 
 const MAX_IMAGES = 4;
 // Fix #10: cap the SHORT side (not the long side) at 1024 px.
@@ -485,6 +481,7 @@ function renderList(id, items, emptyLabel) {
 // and applyReadingPrefs() are imported so Settings-save handlers can
 // re-paint without routing through initAppearance again.
 initAppearance();
+initTabNav();
 
 // Read-aloud (SpeechSynthesis): isSpeechSupported/readAloud/stopReading/
 // updateReadAloudButton/composeReadAloudText extracted to
@@ -784,8 +781,29 @@ async function maybeShowHistoryAlternative(data) {
 
 const aboutBtn = $('about-btn');
 const aboutDialog = $('about-dialog');
+const settingsDialogForAbout = $('settings-dialog');
+// UX fix 2026-06: About used to open via showModal() while Settings was
+// still open underneath — two native <dialog> elements both in the top
+// layer at once. That's not a crash, but it stacks two ::backdrop dims
+// (visibly darker than either dialog alone), nests two focus traps, and
+// means Escape only ever closes the topmost one, which reads as buggy.
+// Now it's a sequential drill-down: Settings closes, About opens: and
+// closing About reopens Settings instead of dropping the user back to
+// whatever was behind both dialogs, since they almost certainly opened
+// About *from* Settings and want to keep editing.
+let reopenSettingsAfterAbout = false;
 aboutBtn?.addEventListener('click', () => {
+  if (settingsDialogForAbout?.open) {
+    settingsDialogForAbout.close();
+    reopenSettingsAfterAbout = true;
+  }
   aboutDialog?.showModal();
+});
+aboutDialog?.addEventListener('close', () => {
+  if (reopenSettingsAfterAbout) {
+    reopenSettingsAfterAbout = false;
+    settingsDialogForAbout?.showModal();
+  }
 });
 
 if ('serviceWorker' in navigator && !isCapacitor) {

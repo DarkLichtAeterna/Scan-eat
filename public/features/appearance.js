@@ -11,14 +11,18 @@
  */
 
 const LS_THEME = 'scanneat.theme';
-const LS_FONT_SIZE = 'scanneat.font_size';     // 'normal' | 'large' | 'xlarge'
-const LS_FONT_FAMILY = 'scanneat.font_family'; // 'atkinson' | 'lexend' | 'system'
+const LS_FONT_SIZE = 'scanneat.fontSize';     // 'normal' | 'large' | 'xlarge'
+const LS_FONT_FAMILY = 'scanneat.fontFamily'; // 'atkinson' | 'lexend' | 'system'
 const LS_MOTION = 'scanneat.motion';           // 'normal' | 'reduced'
 
 export function applyTheme() {
-  const pref = localStorage.getItem(LS_THEME) || 'dark';
+  // OLED noir is the default theme (2026-06): true-black surfaces, the
+  // coral identity kept as an accent hint rather than a backdrop fill.
+  // Anyone wanting the original coral-paper dark theme can still pick
+  // "Sombre" explicitly in Settings.
+  const pref = localStorage.getItem(LS_THEME) || 'oled';
   const mediaLight = pref === 'auto' && window.matchMedia?.('(prefers-color-scheme: light)').matches;
-  const actual = pref === 'light' || mediaLight ? 'light' : 'dark';
+  const actual = pref === 'light' || mediaLight ? 'light' : (pref === 'dark' ? 'dark' : 'oled');
   document.documentElement.dataset.theme = actual;
 }
 

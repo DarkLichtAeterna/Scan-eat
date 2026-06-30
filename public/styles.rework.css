@@ -94,6 +94,20 @@
   --font-sans:        "Atkinson Hyperlegible", -apple-system, BlinkMacSystemFont,
                        "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
+  /* Numeric pairing for the score/grade figures specifically (not just
+     "another display label"). Lexend is a humanist grotesque tuned for
+     reading comfort — its digits are fine in a sentence but don't have
+     much personality as a hero numeral. Space Grotesk is a true
+     companion face: a geometric grotesque cut with the same low-contrast,
+     friendly-but-precise spirit as Atkinson Hyperlegible, but with
+     distinctive open counters and slightly squared digits that make a
+     96-104 score or an "A+" chip feel engineered rather than just big.
+     Atkinson (body) -> Space Grotesk (numerals) is the real two-voice
+     pairing; Lexend stays reserved for headings/section labels so all
+     three roles read as distinct, not duplicated. */
+  --font-numeric:     "Space Grotesk", "Lexend", -apple-system,
+                       BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
   /* Type scale bump: display size up to 4rem for the score number,
      grade chip size up to 3.25rem for the single-product hero view. */
   --text-display:     4rem;         /* score number hero */
@@ -175,7 +189,11 @@ h1, h2, h3 {
   font-family: var(--font-display);
 }
 
-/* Score numbers and grade letters: Lexend for that technical confidence */
+/* Score numbers and grade letters: Space Grotesk, paired against the
+   Atkinson body — a real two-voice pairing instead of reusing the
+   heading face. Tabular figures + a touch of negative tracking so
+   multi-digit scores ("96") sit as tight and confident as the "A+"
+   chip beside them. */
 .grade,
 .grade-chip,
 .score strong,
@@ -183,7 +201,10 @@ h1, h2, h3 {
 .ws-value,
 .recent-grade,
 .compare-score {
-  font-family: var(--font-display);
+  font-family: var(--font-numeric);
+  font-feature-settings: "tnum" 1, "lnum" 1, "ss01" 1;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.01em;
 }
 
 /* App name in header: Lexend, slightly tighter */
@@ -326,19 +347,23 @@ header {
   width: 6.5rem;
   height: 6.5rem;
   font-size: var(--text-3xl);
-  font-family: var(--font-display);
+  font-family: var(--font-numeric);
+  font-feature-settings: "tnum" 1, "lnum" 1, "ss01" 1;
   font-weight: 800;
+  letter-spacing: -0.01em;
   border-radius: var(--r-pill);
   /* default glow: subtle until grade-color glow overrides below */
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.28);
   transition: box-shadow 600ms var(--ease-ui);
 }
 
-/* Dual-product (comparison) grade: also Lexend */
+/* Dual-product (comparison) grade: same numeric pairing */
 .score-card.dual .grade,
 .score-card.dual .grade-chip {
-  font-family: var(--font-display);
+  font-family: var(--font-numeric);
+  font-feature-settings: "tnum" 1, "lnum" 1, "ss01" 1;
   font-weight: 800;
+  letter-spacing: -0.01em;
 }
 
 /* THE SIGNATURE: grade-color glow applied to all grade-chip surfaces */
@@ -379,9 +404,10 @@ header {
               0 2px 8px rgba(0, 0, 0, 0.20);
 }
 
-/* Score number: Lexend for the big number, slightly larger */
+/* Score number: Space Grotesk for the big number, slightly larger */
 .score strong {
-  font-family: var(--font-display);
+  font-family: var(--font-numeric);
+  font-feature-settings: "tnum" 1, "lnum" 1, "ss01" 1;
   font-size: 2.25rem;
   font-weight: 800;
   letter-spacing: var(--tracking-tight);
@@ -426,12 +452,13 @@ dialog h2 {
 
 
 /* =====================================================================
-  11. DAILY DASHBOARD KPI TILES — Lexend for numbers
+  11. DAILY DASHBOARD KPI TILES — Space Grotesk for numbers
    ===================================================================== */
 
 .dash-value,
 .ws-value {
-  font-family: var(--font-display);
+  font-family: var(--font-numeric);
+  font-feature-settings: "tnum" 1, "lnum" 1, "ss01" 1;
   font-weight: 700;
   letter-spacing: var(--tracking-tight);
 }
@@ -537,4 +564,219 @@ button[data-i18n="next"]:hover:not(:disabled) {
 @keyframes voice-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(212, 160, 50, 0.45); }
   50%      { box-shadow: 0 0 0 10px rgba(212, 160, 50, 0); }
+}
+
+/* =====================================================================
+   15. BOTTOM TAB NAVIGATION + HUB SCREENS
+   Replaces the single endless scroll + dialog-soup with four real
+   destinations. Sections opt in via data-tab="scan|journal|plan|
+   progress" (toggled by /features/tab-nav.js); this layer only owns
+   the bar's look and the room main needs to leave for it.
+   ===================================================================== */
+
+main#main-content {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
+}
+
+.tab-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: space-around;
+  align-items: stretch;
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border);
+  padding: var(--sp-2) var(--sp-2) calc(env(safe-area-inset-bottom, 0px) + var(--sp-2));
+}
+
+.tab-bar-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: transparent;
+  border: none;
+  border-radius: var(--r-md);
+  padding: var(--sp-2) var(--sp-1);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color var(--speed-base, 180ms) ease, transform var(--speed-base, 180ms) ease;
+}
+.tab-bar-btn:hover { color: var(--text); }
+.tab-bar-btn:active { transform: scale(0.94); }
+.tab-bar-btn .tab-bar-icon { font-size: 1.25rem; line-height: 1; }
+.tab-bar-btn .tab-bar-label { font-size: var(--text-xs); font-weight: 600; }
+.tab-bar-btn.active {
+  color: var(--accent);
+}
+.tab-bar-btn.active .tab-bar-icon {
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 55%, transparent));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-bar-btn { transition: none; }
+  .tab-bar-btn:active { transform: none; }
+}
+
+/* Plan / Progress hub screens — simple card grid, each card opens the
+   existing dialog for that feature. No new dialogs, just a real entry
+   point instead of a 7-button chip row buried in the daily dashboard. */
+.hub-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-3);
+  padding-top: var(--sp-2);
+}
+.hub-grid > h2 {
+  grid-column: 1 / -1;
+  margin: 0 0 var(--sp-1);
+}
+.hub-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-1);
+  text-align: left;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-4);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform var(--speed-base, 180ms) ease, border-color var(--speed-base, 180ms) ease;
+}
+.hub-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+.hub-card:active { transform: translateY(0) scale(0.98); }
+.hub-card-icon { font-size: 1.75rem; }
+.hub-card-label { font-family: var(--font-display); font-weight: 700; font-size: var(--text-lg); }
+.hub-card-hint { color: var(--muted); font-size: var(--text-sm); }
+
+@media (max-width: 420px) {
+  .hub-grid { grid-template-columns: 1fr; }
+}
+
+/* Desktop: tab bar becomes a left rail instead of a bottom bar, and
+   main no longer needs to reserve bottom space for it. */
+@media (min-width: 1100px) {
+  main#main-content { padding-bottom: var(--sp-7); padding-left: 96px; }
+  .tab-bar {
+    top: 0;
+    bottom: 0;
+    right: auto;
+    width: 80px;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: var(--sp-4);
+    padding: var(--sp-6) var(--sp-2);
+    border-top: none;
+    border-right: 1px solid var(--border);
+  }
+  .tab-bar-btn { flex: 0 0 auto; }
+}
+
+/* =====================================================================
+   16. SIGNATURE ELEMENT — the grade chip is the product; make it the
+   one bold thing on screen instead of competing with the chip-button
+   row that used to surround it.
+   ===================================================================== */
+.grade-chip {
+  box-shadow:
+    0 0 0 1px var(--border),
+    0 12px 32px -8px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+/* =====================================================================
+   17. SETTINGS DIALOG — collapsible sections instead of a wall of
+   unstyled <fieldset>s (UX audit 2026-06).
+
+   Previously: 6 <fieldset class="prefs"> blocks (Lecture, Profils,
+   Rappels, Journal debug, Sauvegarde, Calibration) sat one after another
+   in a single ~170-line scroll, none of them had ANY CSS — no rule in
+   either stylesheet targeted `fieldset` or `legend` — so they rendered
+   with the bare browser-default inset border + legend, clashing with
+   the paper-notebook look everywhere else in the app. Theme/language,
+   the two settings people open this dialog for most, sat above all of
+   that, but still required scrolling past nothing to reach — the real
+   cost was reaching anything *below* them (reminders, backup) without
+   passing visual noise, and debug-only tools (telemetry log, Spearman
+   pillar calibration) being exactly as prominent as everyday prefs.
+
+   Fix: each former fieldset is now a <details class="settings-section">
+   (the same disclosure pattern already used elsewhere — .manual-barcode-
+   wrap, .qa-more, .weight-history — so this isn't a new interaction,
+   just applying an existing one consistently). Reading prefs default
+   open since they're accessibility-load-bearing; everything else
+   defaults closed. Debug/power-user sections get a quieter treatment
+   via .settings-section-advanced. ===================================================================== */
+
+.settings-section {
+  border-top: 1px solid var(--border);
+  padding-top: var(--sp-3);
+  margin-top: var(--sp-3);
+}
+.settings-section summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-uppercase, 0.08em);
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: var(--sp-1) 0;
+}
+.settings-section summary::-webkit-details-marker { display: none; }
+.settings-section summary::after {
+  content: "▾";
+  font-size: 0.8em;
+  transform: rotate(-90deg);
+  transition: transform var(--speed-ui, 140ms) var(--ease-ui);
+  flex-shrink: 0;
+}
+.settings-section[open] > summary::after {
+  transform: rotate(0deg);
+}
+.settings-section summary:hover,
+.settings-section summary:focus-visible {
+  color: var(--text);
+}
+.settings-section summary:focus-visible {
+  outline: 2px solid var(--accent-focus);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
+.settings-section-body {
+  padding-top: var(--sp-3);
+}
+
+/* Debug / power-user sections (telemetry log, pillar calibration):
+   same disclosure pattern but visually quieter so they don't compete
+   with prefs people actually adjust regularly. */
+.settings-section-advanced summary {
+  opacity: 0.78;
+}
+
+/* Backup/Profiles contain buttons that act immediately (export, import,
+   delete profile, clear telemetry) even though they live inside a
+   <form method="dialog"> with Annuler/Enregistrer at the bottom — those
+   two buttons only ever governed the plain <select>/<input> fields, not
+   these action buttons, but visually nothing said so. This note makes
+   the distinction explicit instead of letting people assume "Annuler"
+   is a safety net for everything in the dialog. */
+.settings-immediate-note {
+  color: var(--warning);
+  font-weight: 600;
 }

@@ -1,19 +1,33 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="oled">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#F54B5E" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#F8C8CF" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" />
     <title>Scan'eat</title>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <!-- Pre-paint theme guard: OLED noir is the default, but if the user
+         has explicitly chosen Sombre/Clair/Système in Settings we want
+         that applied before first paint too, not just after appearance.js
+         runs. Keeps the flash-of-wrong-theme window at zero. -->
+    <script>
+      (function () {
+        try {
+          var pref = localStorage.getItem('scanneat.theme') || 'oled';
+          var light = pref === 'light' || (pref === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
+          document.documentElement.dataset.theme = light ? 'light' : (pref === 'dark' ? 'dark' : 'oled');
+        } catch (e) {}
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Fonts loaded from <link> rather than CSS @import so discovery
          happens during HTML parse, not behind a render-blocking CSS
-         waterfall. See audit F-DT-01. -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lexend:wght@400;600;700&display=swap" />
+         waterfall. See audit F-DT-01.
+         Space Grotesk added as the display pairing for score/grade
+         numerics — see styles.rework.css §3 "Numeric type pairing". -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lexend:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap" />
     <!-- Stylesheet:
          Source: public/styles.refactored.css (single source of truth, ~76 KB after backport).
          The legacy public/styles.css (247 KB, 7900 lines) has been retired.
@@ -54,6 +68,17 @@
     <dialog id="settings-dialog" class="settings-dialog" aria-labelledby="settings-dialog-title">
       <form method="dialog">
         <h2 id="settings-dialog-title" data-i18n="settings">Réglages</h2>
+
+        <!-- Core controls stay flat/always-visible — these are the ones
+             people actually open Settings for (theme especially, now
+             that OLED is the default but Sombre/Clair are one tap away).
+             UX audit 2026-06: previously these sat at the top of an
+             8-fieldset, ~170-line single scroll alongside debug tools
+             and a Spearman-correlation calibration table. Splitting the
+             rare/advanced groups into <details> (a pattern already used
+             elsewhere in the app — see .manual-barcode-wrap, .qa-more)
+             means opening Settings to change the theme no longer means
+             scrolling past reminders, telemetry, and backup first. -->
         <label>
           <span data-i18n="settingsKey">Clé API Groq</span>
           <input id="settings-key" type="password" placeholder="gsk_…" autocomplete="off" />
@@ -81,137 +106,152 @@
           <span data-i18n="theme">Thème</span>
           <select id="settings-theme">
             <option value="dark" data-i18n="themeDark">Sombre</option>
+            <option value="oled" data-i18n="themeOled">OLED noir</option>
             <option value="light" data-i18n="themeLight">Clair</option>
             <option value="auto" data-i18n="themeAuto">Système</option>
           </select>
         </label>
 
-        <fieldset class="prefs">
-          <legend data-i18n="reading">Lecture</legend>
-          <label>
-            <span data-i18n="fontSize">Taille du texte</span>
-            <select id="settings-font-size">
-              <option value="normal" data-i18n="fontSizeNormal">Normale</option>
-              <option value="large" data-i18n="fontSizeLarge">Grande</option>
-              <option value="xlarge" data-i18n="fontSizeXLarge">Très grande</option>
-            </select>
-          </label>
-          <label>
-            <span data-i18n="fontFamily">Police</span>
-            <select id="settings-font-family">
-              <option value="atkinson" data-i18n="fontFamilyAtkinson">Atkinson (basse vision)</option>
-              <option value="lexend" data-i18n="fontFamilyLexend">Lexend (dyslexie)</option>
-              <option value="system" data-i18n="fontFamilySystem">Système</option>
-            </select>
-          </label>
-          <label>
-            <span data-i18n="motionLabel">Mouvement</span>
-            <select id="settings-motion">
-              <option value="normal" data-i18n="motionNormal">Normal</option>
-              <option value="reduced" data-i18n="motionReduced">Réduit</option>
-            </select>
-          </label>
-        </fieldset>
+        <details class="settings-section" open>
+          <summary data-i18n="reading">Lecture</summary>
+          <div class="settings-section-body prefs">
+            <label>
+              <span data-i18n="fontSize">Taille du texte</span>
+              <select id="settings-font-size">
+                <option value="normal" data-i18n="fontSizeNormal">Normale</option>
+                <option value="large" data-i18n="fontSizeLarge">Grande</option>
+                <option value="xlarge" data-i18n="fontSizeXLarge">Très grande</option>
+              </select>
+            </label>
+            <label>
+              <span data-i18n="fontFamily">Police</span>
+              <select id="settings-font-family">
+                <option value="atkinson" data-i18n="fontFamilyAtkinson">Atkinson (basse vision)</option>
+                <option value="lexend" data-i18n="fontFamilyLexend">Lexend (dyslexie)</option>
+                <option value="system" data-i18n="fontFamilySystem">Système</option>
+              </select>
+            </label>
+            <label>
+              <span data-i18n="motionLabel">Mouvement</span>
+              <select id="settings-motion">
+                <option value="normal" data-i18n="motionNormal">Normal</option>
+                <option value="reduced" data-i18n="motionReduced">Réduit</option>
+              </select>
+            </label>
+          </div>
+        </details>
 
         <p class="hint settings-profile-hint" data-i18n="settingsProfileHint">Les préférences alimentaires (régime, faible sucre, bio, etc.) sont maintenant dans le Profil 👤.</p>
 
-        <fieldset class="prefs">
-          <legend data-i18n="profilesSection">Profils multiples</legend>
-          <p class="hint" data-i18n="profilesHint">Plusieurs personnes partagent cette app ? Sauvegarde chaque profil (journal, poids, préférences) et change d'un tap.</p>
-          <div class="profile-active-row">
-            <span data-i18n="profilesActive">Profil actif :</span>
-            <strong id="profiles-active">—</strong>
+        <details class="settings-section">
+          <summary data-i18n="profilesSection">Profils multiples</summary>
+          <div class="settings-section-body prefs">
+            <p class="hint" data-i18n="profilesHint">Plusieurs personnes partagent cette app ? Sauvegarde chaque profil (journal, poids, préférences) et change d'un tap.</p>
+            <p class="hint settings-immediate-note" data-i18n="settingsImmediateNote">⚡ Ces actions s'appliquent tout de suite — "Annuler" en bas ne les annule pas.</p>
+            <div class="profile-active-row">
+              <span data-i18n="profilesActive">Profil actif :</span>
+              <strong id="profiles-active">—</strong>
+            </div>
+            <div class="backup-actions">
+              <input id="profiles-name" type="text" placeholder="Nom (ex: Alice)" maxlength="30" autocomplete="off" />
+              <button id="profiles-save" type="button" class="chip-btn" data-i18n="profilesSave">💾 Sauvegarder profil</button>
+            </div>
+            <div class="backup-actions">
+              <select id="profiles-switch-select" data-i18n-aria-label="a11yProfileSwitch" aria-label="Changer de profil"></select>
+              <button id="profiles-switch" type="button" class="chip-btn" data-i18n="profilesSwitch">🔄 Changer</button>
+              <button id="profiles-delete" type="button" class="chip-btn" data-i18n="profilesDelete">🗑 Supprimer</button>
+            </div>
+            <p id="profiles-status" class="qa-ai-status" hidden></p>
           </div>
-          <div class="backup-actions">
-            <input id="profiles-name" type="text" placeholder="Nom (ex: Alice)" maxlength="30" autocomplete="off" />
-            <button id="profiles-save" type="button" class="chip-btn" data-i18n="profilesSave">💾 Sauvegarder profil</button>
-          </div>
-          <div class="backup-actions">
-            <select id="profiles-switch-select" data-i18n-aria-label="a11yProfileSwitch" aria-label="Changer de profil"></select>
-            <button id="profiles-switch" type="button" class="chip-btn" data-i18n="profilesSwitch">🔄 Changer</button>
-            <button id="profiles-delete" type="button" class="chip-btn" data-i18n="profilesDelete">🗑 Supprimer</button>
-          </div>
-          <p id="profiles-status" class="qa-ai-status" hidden></p>
-        </fieldset>
+        </details>
 
-        <fieldset class="prefs">
-          <legend data-i18n="remindersSection">Rappels repas</legend>
-          <p class="hint" data-i18n="remindersHint">Notifications locales aux heures des repas. Elles ne fonctionnent que pendant que l'app est ouverte.</p>
-          <label class="reminder-row">
-            <input id="reminder-breakfast" type="checkbox" />
-            <span data-i18n="mealBreakfast">Petit-déjeuner</span>
-            <input id="reminder-breakfast-time" type="time" value="08:00" />
-          </label>
-          <label class="reminder-row">
-            <input id="reminder-lunch" type="checkbox" />
-            <span data-i18n="mealLunch">Déjeuner</span>
-            <input id="reminder-lunch-time" type="time" value="12:30" />
-          </label>
-          <label class="reminder-row">
-            <input id="reminder-dinner" type="checkbox" />
-            <span data-i18n="mealDinner">Dîner</span>
-            <input id="reminder-dinner-time" type="time" value="19:30" />
-          </label>
-          <label class="reminder-row">
-            <input id="reminder-hydration" type="checkbox" />
-            <span data-i18n="remindersHydration">💧 Hydratation (toutes les N h)</span>
-            <input id="reminder-hydration-every" type="number" min="1" max="6" step="1" value="2" data-i18n-aria-label="a11yHydrationFreq" aria-label="Fréquence (heures)" />
-          </label>
-          <label class="reminder-row">
-            <input id="reminder-weight" type="checkbox" />
-            <span data-i18n="remindersWeight">⚖️ Poids (si pas loggé depuis 4 j)</span>
-            <input id="reminder-weight-time" type="time" value="08:00" />
-          </label>
-        </fieldset>
-
-        <fieldset class="prefs">
-          <legend data-i18n="telemetrySection">Journal local (debug)</legend>
-          <p class="hint" data-i18n="telemetryHint">Opt-in. Garde un petit journal des erreurs de scan sur ton appareil (max 50 entrées). Rien n'est envoyé en ligne.</p>
-          <label class="reminder-row">
-            <input id="telemetry-enabled" type="checkbox" />
-            <span data-i18n="telemetryEnable">Activer le journal</span>
-            <span></span>
-          </label>
-          <div class="backup-actions">
-            <button id="telemetry-view" type="button" class="chip-btn" data-i18n="telemetryView">👁 Voir</button>
-            <button id="telemetry-copy" type="button" class="chip-btn" data-i18n="telemetryCopy">📋 Copier</button>
-            <button id="telemetry-export" type="button" class="chip-btn" data-i18n="telemetryExport">💾 Exporter</button>
-            <button id="telemetry-clear" type="button" class="chip-btn" data-i18n="telemetryClear">🗑 Effacer</button>
-          </div>
-          <pre id="telemetry-output" class="telemetry-output" hidden></pre>
-        </fieldset>
-
-        <fieldset class="prefs">
-          <legend data-i18n="backupSection">Sauvegarde</legend>
-          <p class="hint" data-i18n="backupHint">Exporte toutes tes données (historique, journal, poids, recettes, préférences) dans un seul fichier JSON. Importe pour restaurer.</p>
-          <div class="backup-actions">
-            <button id="backup-export" type="button" class="chip-btn" data-i18n="backupExport">Exporter</button>
-            <label class="chip-btn" for="backup-import-file">
-              <span data-i18n="backupImport">Importer…</span>
-              <input id="backup-import-file" type="file" accept="application/json" hidden />
+        <details class="settings-section">
+          <summary data-i18n="remindersSection">Rappels repas</summary>
+          <div class="settings-section-body prefs">
+            <p class="hint" data-i18n="remindersHint">Notifications locales aux heures des repas. Elles ne fonctionnent que pendant que l'app est ouverte.</p>
+            <label class="reminder-row">
+              <input id="reminder-breakfast" type="checkbox" />
+              <span data-i18n="mealBreakfast">Petit-déjeuner</span>
+              <input id="reminder-breakfast-time" type="time" value="08:00" />
             </label>
-            <button id="csv-export" type="button" class="chip-btn" data-i18n="csvExport">📊 CSV</button>
-            <button id="health-export" type="button" class="chip-btn" data-i18n="healthExport">💊 Health JSON</button>
-            <label class="chip-btn" for="csv-import-file">
-              <span data-i18n="csvImport">📥 Importer MFP / Cronometer…</span>
-              <input id="csv-import-file" type="file" accept=".csv,text/csv" hidden />
+            <label class="reminder-row">
+              <input id="reminder-lunch" type="checkbox" />
+              <span data-i18n="mealLunch">Déjeuner</span>
+              <input id="reminder-lunch-time" type="time" value="12:30" />
+            </label>
+            <label class="reminder-row">
+              <input id="reminder-dinner" type="checkbox" />
+              <span data-i18n="mealDinner">Dîner</span>
+              <input id="reminder-dinner-time" type="time" value="19:30" />
+            </label>
+            <label class="reminder-row">
+              <input id="reminder-hydration" type="checkbox" />
+              <span data-i18n="remindersHydration">💧 Hydratation (toutes les N h)</span>
+              <input id="reminder-hydration-every" type="number" min="1" max="6" step="1" value="2" data-i18n-aria-label="a11yHydrationFreq" aria-label="Fréquence (heures)" />
+            </label>
+            <label class="reminder-row">
+              <input id="reminder-weight" type="checkbox" />
+              <span data-i18n="remindersWeight">⚖️ Poids (si pas loggé depuis 4 j)</span>
+              <input id="reminder-weight-time" type="time" value="08:00" />
             </label>
           </div>
-          <p id="csv-import-status" class="hint" aria-live="polite"></p>
-          <p class="hint" data-i18n="healthExportHint">Le JSON "Health" s'importe dans Apple Health / Google Fit via une app passerelle (Shortcuts iOS, Health Auto Export). Scan'eat ne s'intègre pas directement — une PWA n'a pas accès aux bases de santé natives.</p>
-          <p id="backup-status" class="qa-ai-status" hidden></p>
-        </fieldset>
+        </details>
 
-        <fieldset class="prefs" id="calibration-fieldset">
-          <legend>⚖️ Calibration des piliers</legend>
-          <p class="hint">Corrélation de Spearman entre chaque pilier et le Nutri-Score (référence EU) sur votre historique de scans.</p>
-          <div id="calibration-output">
-            <p class="hint" id="calibration-placeholder">Chargement…</p>
+        <details class="settings-section">
+          <summary data-i18n="backupSection">Sauvegarde</summary>
+          <div class="settings-section-body prefs">
+            <p class="hint" data-i18n="backupHint">Exporte toutes tes données (historique, journal, poids, recettes, préférences) dans un seul fichier JSON. Importe pour restaurer.</p>
+            <p class="hint settings-immediate-note" data-i18n="settingsImmediateNote">⚡ Ces actions s'appliquent tout de suite — "Annuler" en bas ne les annule pas.</p>
+            <div class="backup-actions">
+              <button id="backup-export" type="button" class="chip-btn" data-i18n="backupExport">Exporter</button>
+              <label class="chip-btn" for="backup-import-file">
+                <span data-i18n="backupImport">Importer…</span>
+                <input id="backup-import-file" type="file" accept="application/json" hidden />
+              </label>
+              <button id="csv-export" type="button" class="chip-btn" data-i18n="csvExport">📊 CSV</button>
+              <button id="health-export" type="button" class="chip-btn" data-i18n="healthExport">💊 Health JSON</button>
+              <label class="chip-btn" for="csv-import-file">
+                <span data-i18n="csvImport">📥 Importer MFP / Cronometer…</span>
+                <input id="csv-import-file" type="file" accept=".csv,text/csv" hidden />
+              </label>
+            </div>
+            <p id="csv-import-status" class="hint" aria-live="polite"></p>
+            <p class="hint" data-i18n="healthExportHint">Le JSON "Health" s'importe dans Apple Health / Google Fit via une app passerelle (Shortcuts iOS, Health Auto Export). Scan'eat ne s'intègre pas directement — une PWA n'a pas accès aux bases de santé natives.</p>
+            <p id="backup-status" class="qa-ai-status" hidden></p>
           </div>
-          <div class="backup-actions" style="margin-top:0.5rem">
-            <button id="calibration-run" type="button" class="chip-btn">🔄 Recalculer</button>
+        </details>
+
+        <details class="settings-section settings-section-advanced">
+          <summary data-i18n="telemetrySection">Journal local (debug)</summary>
+          <div class="settings-section-body prefs">
+            <p class="hint" data-i18n="telemetryHint">Opt-in. Garde un petit journal des erreurs de scan sur ton appareil (max 50 entrées). Rien n'est envoyé en ligne.</p>
+            <label class="reminder-row">
+              <input id="telemetry-enabled" type="checkbox" />
+              <span data-i18n="telemetryEnable">Activer le journal</span>
+              <span></span>
+            </label>
+            <div class="backup-actions">
+              <button id="telemetry-view" type="button" class="chip-btn" data-i18n="telemetryView">👁 Voir</button>
+              <button id="telemetry-copy" type="button" class="chip-btn" data-i18n="telemetryCopy">📋 Copier</button>
+              <button id="telemetry-export" type="button" class="chip-btn" data-i18n="telemetryExport">💾 Exporter</button>
+              <button id="telemetry-clear" type="button" class="chip-btn" data-i18n="telemetryClear">🗑 Effacer</button>
+            </div>
+            <pre id="telemetry-output" class="telemetry-output" hidden></pre>
           </div>
-        </fieldset>
+        </details>
+
+        <details class="settings-section settings-section-advanced" id="calibration-fieldset">
+          <summary>⚖️ Calibration des piliers</summary>
+          <div class="settings-section-body prefs">
+            <p class="hint">Corrélation de Spearman entre chaque pilier et le Nutri-Score (référence EU) sur votre historique de scans.</p>
+            <div id="calibration-output">
+              <p class="hint" id="calibration-placeholder" data-i18n="calibrationPlaceholder">Calcul à la demande — touche « Recalculer ».</p>
+            </div>
+            <div class="backup-actions" style="margin-top:0.5rem">
+              <button id="calibration-run" type="button" class="chip-btn">🔄 Recalculer</button>
+            </div>
+          </div>
+        </details>
 
         <div class="dialog-actions">
           <button id="about-btn" type="button" class="secondary" data-i18n="about">À propos</button>
@@ -422,7 +462,7 @@
         <button id="install-banner-accept" type="button" class="chip-btn accent compact" data-i18n="installBannerAccept">Installer</button>
         <button id="install-banner-dismiss" type="button" class="secondary compact" data-i18n="installBannerDismiss">Plus tard</button>
       </aside>
-      <section class="capture">
+      <section class="capture" data-tab="scan">
         <div id="queue" class="queue" hidden></div>
         <div class="capture-actions">
           <button id="barcode-live-btn" type="button" class="capture-btn" hidden>
@@ -464,7 +504,7 @@
         </details>
       </section>
 
-      <section id="status" class="status" role="status" aria-live="polite" hidden>
+      <section id="status" class="status" role="status" aria-live="polite" hidden data-tab="scan">
         <div class="skeleton-card">
           <div class="skeleton-grade"></div>
           <div class="skeleton-lines">
@@ -483,7 +523,7 @@
         </div>
       </section>
 
-      <section id="daily-dashboard" class="daily-dashboard" hidden>
+      <section id="daily-dashboard" class="daily-dashboard" hidden data-tab="journal">
         <div class="dashboard-header">
           <h2><span data-i18n="todayTitle">Aujourd'hui</span> · <span id="dashboard-date"></span></h2>
           <div class="view-toggle" role="tablist" data-i18n-aria-label="a11yView" aria-label="Vue">
@@ -494,12 +534,6 @@
           <p id="dashboard-streak" class="dashboard-streak" hidden></p>
           <div class="dashboard-actions">
             <button id="quick-add-btn" class="compact chip-btn accent" type="button" data-i18n="quickAdd">Quick Add</button>
-            <button id="templates-btn" class="compact chip-btn" type="button" data-i18n="mealTemplates">Repas</button>
-            <button id="recipes-btn" class="compact chip-btn" type="button" data-i18n="recipesBtn">Recettes</button>
-            <button id="meal-plan-btn" class="compact chip-btn" type="button" data-i18n="mealPlanBtn">📅 Planning</button>
-            <button id="custom-foods-btn" class="compact chip-btn" type="button" data-i18n="customFoodsBtn">Aliments</button>
-            <button id="weight-btn" class="compact chip-btn" type="button" data-i18n="weightBtn">Poids</button>
-            <button id="progress-btn" class="compact chip-btn" type="button" data-i18n="progressBtn">📈 Progrès</button>
             <button id="copy-yesterday" class="secondary compact" type="button" data-i18n="copyYesterday">📥 Copier hier</button>
             <button id="clear-today" class="secondary compact" type="button" data-i18n="clearToday">Effacer</button>
           </div>
@@ -593,6 +627,44 @@
           </label>
           <span id="day-note-counter" class="day-note-counter" aria-live="polite">0 / 500</span>
         </details>
+      </section>
+
+      <section id="plan-hub" class="hub-grid" data-tab="plan" hidden aria-labelledby="plan-hub-title">
+        <h2 id="plan-hub-title" data-i18n="planHubTitle">Organiser</h2>
+        <button id="meal-plan-btn" class="hub-card" type="button">
+          <span class="hub-card-icon" aria-hidden="true">📅</span>
+          <span class="hub-card-label" data-i18n="mealPlanBtn">Planning</span>
+          <span class="hub-card-hint" data-i18n="mealPlanHint">Organise tes repas de la semaine</span>
+        </button>
+        <button id="recipes-btn" class="hub-card" type="button">
+          <span class="hub-card-icon" aria-hidden="true">📖</span>
+          <span class="hub-card-label" data-i18n="recipesBtn">Recettes</span>
+          <span class="hub-card-hint" data-i18n="recipesHint">Tes recettes maison, scorées</span>
+        </button>
+        <button id="templates-btn" class="hub-card" type="button">
+          <span class="hub-card-icon" aria-hidden="true">🍽️</span>
+          <span class="hub-card-label" data-i18n="mealTemplates">Repas types</span>
+          <span class="hub-card-hint" data-i18n="mealTemplatesHint">Combos rapides à reproposer</span>
+        </button>
+        <button id="custom-foods-btn" class="hub-card" type="button">
+          <span class="hub-card-icon" aria-hidden="true">🧺</span>
+          <span class="hub-card-label" data-i18n="customFoodsBtn">Aliments perso</span>
+          <span class="hub-card-hint" data-i18n="customFoodsHint">Tes aliments hors base de données</span>
+        </button>
+      </section>
+
+      <section id="progress-hub" class="hub-grid" data-tab="progress" hidden aria-labelledby="progress-hub-title">
+        <h2 id="progress-hub-title" data-i18n="progressHubTitle">Progrès</h2>
+        <button id="weight-btn" class="hub-card" type="button">
+          <span class="hub-card-icon" aria-hidden="true">⚖️</span>
+          <span class="hub-card-label" data-i18n="weightBtn">Poids</span>
+          <span class="hub-card-hint" data-i18n="weightHint">Suis ta courbe et tes objectifs</span>
+        </button>
+        <button id="progress-btn" class="hub-card" type="button">
+          <span class="hub-card-icon" aria-hidden="true">📈</span>
+          <span class="hub-card-label" data-i18n="progressBtn">Tendances</span>
+          <span class="hub-card-hint" data-i18n="progressHint">Vue d'ensemble sur la durée</span>
+        </button>
       </section>
 
       <dialog id="activity-dialog" class="settings-dialog" aria-labelledby="activity-dialog-title">
@@ -932,7 +1004,7 @@
         </form>
       </dialog>
 
-      <section id="recent-scans" class="recent-scans" hidden>
+      <section id="recent-scans" class="recent-scans" hidden data-tab="journal">
         <div class="recent-header">
           <h2 data-i18n="recentScans">Scans récents</h2>
           <div class="recent-actions">
@@ -958,7 +1030,7 @@
 
       <section id="error" class="error" role="alert" aria-live="assertive" hidden></section>
 
-      <section id="comparison" class="comparison" hidden>
+      <section id="comparison" class="comparison" hidden data-tab="scan">
         <div class="compare-header">
           <h3 data-i18n="comparison">Comparaison</h3>
           <button id="compare-clear" type="button" class="secondary compact" data-i18n="clear">Effacer</button>
@@ -980,7 +1052,7 @@
         <p class="compare-delta" id="compare-delta"></p>
       </section>
 
-      <section id="result" class="result" aria-labelledby="product-name" hidden>
+      <section id="result" class="result" aria-labelledby="product-name" hidden data-tab="scan">
         <div class="score-card dual" id="score-card">
           <div class="score-slot">
             <span class="score-kind" data-i18n="classicScore">Score classique</span>
@@ -1146,6 +1218,25 @@
         </div>
       </section>
     </main>
+
+    <nav id="tab-bar" class="tab-bar" role="tablist" aria-label="Navigation">
+      <button type="button" class="tab-bar-btn active" data-tab-target="scan" role="tab" aria-selected="true">
+        <span class="tab-bar-icon" aria-hidden="true">📷</span>
+        <span class="tab-bar-label" data-i18n="tabScan">Scan</span>
+      </button>
+      <button type="button" class="tab-bar-btn" data-tab-target="journal" role="tab" aria-selected="false">
+        <span class="tab-bar-icon" aria-hidden="true">📓</span>
+        <span class="tab-bar-label" data-i18n="tabJournal">Journal</span>
+      </button>
+      <button type="button" class="tab-bar-btn" data-tab-target="plan" role="tab" aria-selected="false">
+        <span class="tab-bar-icon" aria-hidden="true">🗂️</span>
+        <span class="tab-bar-label" data-i18n="tabPlan">Organiser</span>
+      </button>
+      <button type="button" class="tab-bar-btn" data-tab-target="progress" role="tab" aria-selected="false">
+        <span class="tab-bar-icon" aria-hidden="true">📈</span>
+        <span class="tab-bar-label" data-i18n="tabProgress">Progrès</span>
+      </button>
+    </nav>
 
     <script type="module" src="/app.js"></script>
   </body>

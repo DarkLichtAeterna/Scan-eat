@@ -215,6 +215,24 @@ function nutritionFromOFF(n: Record<string, unknown> | undefined): NutritionPer1
   // reported in mg; µg for fat-soluble vitamins, B12, folate).
   const gToMg = (v: unknown) => num(v) * 1000;
   const gToUg = (v: unknown) => num(v) * 1_000_000;
+
+  // Salt vs. sodium: OFF carries both salt_100g and sodium_100g as
+  // separate fields, and not every product reports both — manually
+  // entered or older imports frequently have only one. Previously
+  // salt_g read salt_100g alone via num() (defaults missing to 0),
+  // which silently turned "salt not declared" into "0g salt": an
+  // artificially perfect negative-nutrients score AND a wrong 0mg
+  // reading on the sodium dashboard tracker for anyone monitoring
+  // intake. EU/FSA standard conversion is salt(g) = sodium(g) × 2.5;
+  // derive whichever side is missing from the other before falling
+  // back to 0 when neither is present.
+  const saltRaw = numNullable(nut['salt_100g']);
+  const sodiumRaw = numNullable(nut['sodium_100g']);
+  const salt_g = saltRaw ?? (sodiumRaw != null ? sodiumRaw * 2.5 : 0);
+  const sodium_mg = saltRaw != null && sodiumRaw == null
+    ? (saltRaw / 2.5) * 1000
+    : gToMg(nut['sodium_100g']);
+
   return {
     energy_kcal: num(nut['energy-kcal_100g'] ?? nut['energy_100g']),
     fat_g: num(nut['fat_100g']),
@@ -224,7 +242,7 @@ function nutritionFromOFF(n: Record<string, unknown> | undefined): NutritionPer1
     added_sugars_g: numNullable(nut['added-sugars_100g']),
     fiber_g: num(nut['fiber_100g']),
     protein_g: num(nut['proteins_100g']),
-    salt_g: num(nut['salt_100g']),
+    salt_g,
     trans_fat_g: numNullable(nut['trans-fat_100g']),
     // Minerals
     iron_mg:       gToMg(nut['iron_100g']),
@@ -232,7 +250,7 @@ function nutritionFromOFF(n: Record<string, unknown> | undefined): NutritionPer1
     magnesium_mg:  gToMg(nut['magnesium_100g']),
     potassium_mg:  gToMg(nut['potassium_100g']),
     zinc_mg:       gToMg(nut['zinc_100g']),
-    sodium_mg:     gToMg(nut['sodium_100g']),
+    sodium_mg,
     // Vitamins
     vit_a_ug:      gToUg(nut['vitamin-a_100g']),
     vit_c_mg:      gToMg(nut['vitamin-c_100g']),

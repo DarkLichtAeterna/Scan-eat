@@ -27,7 +27,7 @@ const SCHEMA = {
 
   // Localisation + theme + accessibility
   'scanneat.lang':          { default: 'fr',      type: 'enum', values: ['fr', 'en'] },
-  'scanneat.theme':         { default: 'dark',    type: 'enum', values: ['dark', 'light', 'auto'] },
+  'scanneat.theme':         { default: 'dark',    type: 'enum', values: ['dark', 'oled', 'light', 'auto'] },
   'scanneat.fontSize':      { default: 'normal',  type: 'enum', values: ['normal', 'large', 'xlarge'] },
   'scanneat.fontFamily':    { default: 'atkinson', type: 'enum', values: ['atkinson', 'lexend', 'system'] },
   'scanneat.motion':        { default: 'normal',  type: 'enum', values: ['normal', 'reduced'] },
